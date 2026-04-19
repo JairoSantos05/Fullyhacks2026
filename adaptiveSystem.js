@@ -4,15 +4,6 @@
  * Works for ANY goal type: studying, fitness, habits, productivity, learning skills, etc.
  */
 
-// Goal types supported by the system
-const GoalType = {
-  STUDYING: 'studying',
-  FITNESS: 'fitness',
-  HABITS: 'habits',
-  PRODUCTIVITY: 'productivity',
-  LEARNING_SKILLS: 'learning_skills'
-};
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // MESSAGE POOLS - Categorized for different motivational contexts
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -225,12 +216,10 @@ function selectMessage(pool, tier = null) {
 
 /**
  * Creates a new motivation state object
- * @param {string} goalType - The type of goal (use GoalType constants)
  * @returns {Object} Initial state for the motivation system
  */
-function createMotivationState(goalType = GoalType.HABITS) {
+function createMotivationState() {
   return {
-    goalType,
     points: 0,
     streak: 0,
     missedCount: 0,
@@ -362,7 +351,7 @@ function failOrSkipGoal(state) {
  * @returns {Object} Reset state
  */
 function resetMotivationState(state) {
-  return createMotivationState(state.goalType);
+  return createMotivationState();
 }
 
 /**
@@ -372,7 +361,6 @@ function resetMotivationState(state) {
  */
 function getMotivationSummary(state) {
   return {
-    goalType: state.goalType,
     points: state.points,
     streak: state.streak,
     missedCount: state.missedCount,
@@ -381,10 +369,184 @@ function getMotivationSummary(state) {
   };
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// HIERARCHICAL TASK SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Creates a new subtask object
+ * @param {number} id - Unique subtask ID
+ * @param {string} title - Subtask title
+ * @returns {Object} Subtask object
+ */
+function createSubtask(id, title) {
+  return {
+    id,
+    title,
+    completed: false
+  };
+}
+
+/**
+ * Creates a new main task with subtasks
+ * @param {number} id - Unique task ID
+ * @param {string} title - Main task title
+ * @param {Array} subtasks - Array of subtask objects
+ * @returns {Object} Main task object
+ */
+function createTask(id, title, subtasks = []) {
+  return {
+    id,
+    title,
+    completed: false,
+    subtasks: subtasks.map((st, idx) =>
+      typeof st === 'string' ? createSubtask(idx + 1, st) : st
+    )
+  };
+}
+
+/**
+ * Gets the progress percentage of a task
+ * @param {Object} task - Main task object
+ * @returns {number} Percentage (0-100) of completed subtasks
+ */
+function getTaskProgress(task) {
+  if (!task.subtasks || task.subtasks.length === 0) return 0;
+  const completed = task.subtasks.filter(st => st.completed).length;
+  return Math.round((completed / task.subtasks.length) * 100);
+}
+
+/**
+ * Completes a subtask within a main task
+ * Returns updated task; if all subtasks done, marks main task complete
+ * @param {Object} task - Main task object
+ * @param {number} subtaskId - ID of subtask to complete
+ * @returns {Object} Updated task object
+ */
+function completeSubtask(task, subtaskId) {
+  const updatedTask = {
+    ...task,
+    subtasks: task.subtasks.map(st =>
+      st.id === subtaskId ? { ...st, completed: true } : st
+    )
+  };
+
+  // Check if all subtasks are now complete
+  const allComplete = updatedTask.subtasks.every(st => st.completed);
+  if (allComplete) {
+    updatedTask.completed = true;
+  }
+
+  return updatedTask;
+}
+
+/**
+ * Resets a task and all its subtasks to incomplete
+ * @param {Object} task - Main task object
+ * @returns {Object} Reset task object
+ */
+function resetTask(task) {
+  return {
+    ...task,
+    completed: false,
+    subtasks: task.subtasks.map(st => ({ ...st, completed: false }))
+  };
+}
+
+/**
+ * Skips or marks a subtask as missed
+ * @param {Object} task - Main task object
+ * @param {number} subtaskId - ID of subtask to skip
+ * @returns {Object} Updated task object
+ */
+function skipSubtask(task, subtaskId) {
+  // Skipped subtasks are not marked complete, but the task remains incomplete
+  // This allows the user to acknowledge a missed subtask without completion
+  return task;
+}
+
+/**
+ * Gets the number of completed subtasks
+ * @param {Object} task - Main task object
+ * @returns {number} Count of completed subtasks
+ */
+function getCompletedSubtaskCount(task) {
+  return task.subtasks.filter(st => st.completed).length;
+}
+
+/**
+ * Completes a subtask and updates motivation state
+ * Returns { updatedTask, motivationState, reward }
+ * @param {Object} task - Main task object
+ * @param {number} subtaskId - ID of subtask to complete
+ * @param {Object} motivationState - Current motivation state
+ * @returns {Object} Object with updatedTask, updated motivationState, and reward info
+ */
+function completeSubtaskWithMotivation(task, subtaskId, motivationState) {
+  const updatedTask = completeSubtask(task, subtaskId);
+  const isMainTaskComplete = updatedTask.completed;
+
+  // Determine reward based on whether main task completed
+  const subtaskReward = 5;
+  const mainTaskReward = 15;
+  const totalReward = isMainTaskComplete ? (subtaskReward + mainTaskReward) : subtaskReward;
+
+  // Update motivation state
+  const newMotivationState = {
+    ...motivationState,
+    points: motivationState.points + totalReward,
+    streak: motivationState.streak + 1,
+    missedCount: 0,
+    previousLevel: motivationState.level,
+    previousPoints: motivationState.points
+  };
+
+  // Update level
+  newMotivationState.level = updateLevel(newMotivationState.points);
+
+  // Get motivation message
+  newMotivationState.message = getMotivationMessage(newMotivationState);
+
+  return {
+    updatedTask,
+    motivationState: newMotivationState,
+    reward: totalReward,
+    isMainTaskComplete,
+    message: isMainTaskComplete
+      ? `Task "${task.title}" completed! +${totalReward} points!`
+      : `Subtask completed! +${totalReward} points`
+  };
+}
+
+/**
+ * Marks a subtask as missed and updates motivation state
+ * Returns { updatedTask, motivationState }
+ * @param {Object} task - Main task object
+ * @param {number} subtaskId - ID of subtask to miss
+ * @param {Object} motivationState - Current motivation state
+ * @returns {Object} Object with updated task and motivation state
+ */
+function missSubtaskWithMotivation(task, subtaskId, motivationState) {
+  // Skipped subtasks reset the streak
+  const newMotivationState = {
+    ...motivationState,
+    missedCount: motivationState.missedCount + 1,
+    streak: 0,
+    previousPoints: motivationState.points
+  };
+
+  newMotivationState.message = getMotivationMessage(newMotivationState);
+
+  return {
+    updatedTask: task,  // Task structure unchanged when missing
+    motivationState: newMotivationState,
+    message: `Subtask missed. Focus on what's next.`
+  };
+}
+
 // Export for module usage (Node.js, ES6 modules, etc.)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    GoalType,
     createMotivationState,
     updateLevel,
     getMotivationMessage,
@@ -392,6 +554,16 @@ if (typeof module !== 'undefined' && module.exports) {
     failOrSkipGoal,
     resetMotivationState,
     getMotivationSummary,
+    // Hierarchical task system
+    createTask,
+    createSubtask,
+    getTaskProgress,
+    completeSubtask,
+    resetTask,
+    skipSubtask,
+    getCompletedSubtaskCount,
+    completeSubtaskWithMotivation,
+    missSubtaskWithMotivation,
     // Also export message pools for external use
     MISSED_GOAL_MESSAGES,
     STREAK_MESSAGES,
@@ -406,7 +578,6 @@ if (typeof module !== 'undefined' && module.exports) {
 // For browser usage - expose functions globally
 if (typeof window !== 'undefined') {
   window.MotivationEngine = {
-    GoalType,
     createMotivationState,
     updateLevel,
     getMotivationMessage,
@@ -414,6 +585,16 @@ if (typeof window !== 'undefined') {
     failOrSkipGoal,
     resetMotivationState,
     getMotivationSummary,
+    // Hierarchical task system
+    createTask,
+    createSubtask,
+    getTaskProgress,
+    completeSubtask,
+    resetTask,
+    skipSubtask,
+    getCompletedSubtaskCount,
+    completeSubtaskWithMotivation,
+    missSubtaskWithMotivation,
     MISSED_GOAL_MESSAGES,
     STREAK_MESSAGES,
     SUCCESS_MESSAGES,
@@ -426,8 +607,8 @@ if (typeof window !== 'undefined') {
 
 // Example usage
 if (typeof require !== 'undefined' && require.main === module) {
-  // Create state for studying goal
-  let state = createMotivationState(GoalType.STUDYING);
+  // Create state
+  let state = createMotivationState();
 
   // Complete a goal
   state = completeGoal(state);

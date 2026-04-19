@@ -1,0 +1,16 @@
+{
+  "name": "Submerge",
+  "short_name": "Submerge",
+  "description": "Dive Into Your Goals",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000d1a",
+  "theme_color": "#000d1a",
+  "icons": [
+    {
+      "src": "assets/cute-diver-floating-with-submarine-balloon-cartoon-vector-icon-illustration-science-transportation_138676-9379.png",
+      "sizes": "1000x1000",
+      "type": "image/png"
+    }
+  ]
+}
