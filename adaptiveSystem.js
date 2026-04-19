@@ -13,6 +13,216 @@ const GoalType = {
   LEARNING_SKILLS: 'learning_skills'
 };
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// MESSAGE POOLS - Categorized for different motivational contexts
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Gentle recovery messages for when user misses goals (supportive, not harsh)
+const MISSED_GOAL_MESSAGES = {
+  normal: [
+    "It's okay to restart. Progress is built on comebacks.",
+    "Every expert was once a beginner who didn't give up.",
+    "A step backward is just a setup for a leap forward.",
+    "Today is a fresh start. One small action matters.",
+    "The ocean has depths, but you have persistence.",
+    "Rest, then dive back in. You've got this.",
+    "One missed day doesn't define your journey.",
+    "The tide goes out, but it always comes back in.",
+  ],
+  stronger: [
+    "You've been off track recently. Start small—just one step today.",
+    "Don't let one slip become a slide. Reclaim your momentum now.",
+    "Your future self will thank you for starting again today.",
+    "The hardest part is beginning. Take one small step.",
+    "Pressure builds diamonds. Let this challenge refine you.",
+  ],
+  special: [
+    "Champions aren't those who never fall, but those who rise every time.",
+    "The depth you're diving into requires resilience. Come back stronger.",
+    "This is where most quit. Be different. Start now.",
+  ]
+};
+
+// Consistency and momentum messages (intensity increases with streak)
+const STREAK_MESSAGES = {
+  1: {  // Starting the streak
+    normal: [
+      "Great start! The journey of a thousand miles begins with one step.",
+      "You've initiated the momentum. Keep it flowing.",
+      "First step done. The path ahead is waiting.",
+      "A ripple becomes a wave. Watch your progress grow.",
+    ],
+    stronger: [
+      "Momentum is building. You're on your way.",
+      "The engine is warming up. Stay in the flow.",
+      "You've started something powerful. Keep going.",
+    ],
+    special: [
+      "Every legend began exactly where you are right now.",
+      "This is the first stroke of something great.",
+    ]
+  },
+  3: {  // Building consistency
+    normal: [
+      "Great consistency! Momentum is building.",
+      "Three in a row! You're developing real strength.",
+      "Your dedication is showing. Keep the rhythm going.",
+      "The habit is taking root. Nurture it further.",
+    ],
+    stronger: [
+      "You're building an elite habit system. Keep going!",
+      "Consistency is your superpower now. Embrace it.",
+      "Three days strong—your future self is grateful.",
+    ],
+    special: [
+      "This is how legends are made. One day at a time.",
+      "Your discipline is inspiring. The ocean respects that.",
+    ]
+  },
+  7: {  // Strong momentum
+    normal: [
+      "A full week! You're building something remarkable.",
+      "Seven days of commitment. That's real progress.",
+      "Your streak is becoming unbreakable.",
+      "The habit is now part of who you are.",
+    ],
+    stronger: [
+      "You're building an elite habit system. Keep going!",
+      "One week strong—your dedication is showing.",
+      "This is elite-level consistency. Impressive.",
+    ],
+    special: [
+      "A full week of dominance. You're in rare company.",
+      "This is where most fail. You didn't. Exceptional.",
+      "Seven days of choosing growth. That's a lifestyle now.",
+    ]
+  },
+  14: {  // Advanced streak
+    normal: [
+      "Two weeks strong! Your dedication is remarkable.",
+      "The habit is now unbreakable. Well done.",
+      "Consistency at this level is rare. Keep it up.",
+    ],
+    stronger: [
+      "Two weeks of elite performance. You're unstoppable.",
+      "Your streak has become legendary. The ocean knows your name.",
+    ],
+    special: [
+      "Fourteen days of choosing growth. You're in the top 1%.",
+      "This level of commitment separates achievers from dreamers.",
+    ]
+  },
+  30: {  // Master level streak
+    normal: [
+      "One month! Your commitment is extraordinary.",
+      "A full month of consistency. That's a lifestyle change.",
+    ],
+    stronger: [
+      "30 days of excellence. You've built something that lasts.",
+      "One month strong—you've proven you're different.",
+    ],
+    special: [
+      "A month of dominance. You're not just consistent—you're legendary.",
+      "This is the behavior of the exceptional. The ocean bows to you.",
+    ]
+  }
+};
+
+// Goal completion / reward messages (celebratory, rewarding)
+const SUCCESS_MESSAGES = {
+  normal: [
+    "Goal completed! The depth grows with each victory.",
+    "Another task conquered. You're diving deeper.",
+    "Well done! Your progress is measurable and real.",
+    "Task complete. The ocean gets a little more familiar.",
+    "You moved the needle. Keep pushing forward.",
+    "A win in the books. On to the next depth.",
+  ],
+  stronger: [
+    "Massive progress detected. You're leveling up fast.",
+    "You're diving deeper than ever before. Incredible.",
+    "Each goal pushes you into new territory. Amazing.",
+    "Your momentum is accelerating. The depths await.",
+  ],
+  special: [
+    "A true conqueror of depths. This victory echoes in the abyss.",
+    "You've just added a pearl to your collection. Magnificent.",
+    "The ocean recognizes your achievement. Legendary.",
+  ]
+};
+
+// Rare, exciting progression messages (for level-ups)
+const LEVEL_UP_MESSAGES = {
+  normal: [
+    "You just reached a new level: {level}. Growth is happening.",
+    "Zone unlocked: {level}. The depths deepen before you.",
+    "You've ascended to {level}. New challenges await.",
+  ],
+  stronger: [
+    "BREAKTHROUGH! You've entered {level}. The real dive begins now.",
+    "Level up to {level}! Your dedication is paying off massively.",
+    "You've crossed into {level}. The view from here is incredible.",
+  ],
+  special: [
+    "🌊 LEGENDARY ASCENSION! You've reached {level}! The ocean itself acknowledges you!",
+    "🏆 You've achieved {level}! This is rare company—you're in the top tier now!",
+    "⚡ MASSIVE BREAKTHROUGH! {level} unlocked! Your commitment is extraordinary!",
+  ]
+};
+
+// Default/encouragement messages
+const DEFAULT_MESSAGES = {
+  normal: [
+    "Start with one small win today.",
+    "Dive deeper. Focus on the next meter.",
+    "One task at a time. The depth will come.",
+    "Your next victory is waiting. Go claim it.",
+    "The ocean is vast. Take one stroke at a time.",
+  ],
+  stronger: [
+    "Your potential is deeper than you know. Start now.",
+    "Today is another chance to go deeper. Take it.",
+    "The best time to dive was when you started. The second best is now.",
+  ],
+  special: [
+    "This is your moment. Make it count.",
+    "The depth you're seeking is earned, not given. Begin.",
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RANDOMNESS CONTROLLER
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Returns a random tier based on controlled probability.
+ * - 70% normal
+ * - 20% stronger
+ * - 10% special
+ */
+function getRandomTier() {
+  const roll = Math.random();
+  if (roll < 0.70) return 'normal';
+  if (roll < 0.90) return 'stronger';
+  return 'special';
+}
+
+/**
+ * Selects a random message from the given pool.
+ * If tier is provided, selects from that tier.
+ * Otherwise, uses controlled randomness.
+ */
+function selectMessage(pool, tier = null) {
+  if (!tier) tier = getRandomTier();
+  const messages = pool[tier] || pool.normal || [];
+  if (!messages.length) return pool.normal?.[0] || "Start with one small win today.";
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MOTIVATION STATE
+// ═══════════════════════════════════════════════════════════════════════════════
+
 /**
  * Creates a new motivation state object
  * @param {string} goalType - The type of goal (use GoalType constants)
@@ -45,44 +255,58 @@ function updateLevel(points) {
 
 /**
  * Gets an adaptive motivational message based on behavior patterns
+ * Uses controlled randomness for message variety.
  * @param {Object} state - Current motivation state
  * @returns {string} Motivational message
  */
 function getMotivationMessage(state) {
-  // Priority 1: Handle missed count patterns
+  // Priority 1: Handle missed count patterns (recovery tone)
   if (state.missedCount >= 3) {
-    return "You've been off track recently. Start small—just one step today.";
+    return selectMessage(MISSED_GOAL_MESSAGES);
   }
   if (state.missedCount >= 1) {
-    return "It's okay to restart. Progress is built on comebacks.";
+    return selectMessage(MISSED_GOAL_MESSAGES);
   }
 
-  // Priority 2: Handle streak patterns
-  if (state.streak >= 7) {
-    return "You're building an elite habit system. Keep going!";
+  // Priority 2: Handle streak patterns (consistency + momentum)
+  // Find the appropriate streak tier
+  let streakTier = 1;
+  const sortedTiers = Object.keys(STREAK_MESSAGES).map(Number).sort((a, b) => b - a);
+  for (const tier of sortedTiers) {
+    if (state.streak >= tier) {
+      streakTier = tier;
+      break;
+    }
   }
+
   if (state.streak >= 3) {
-    return "Great consistency! Momentum is building.";
+    return selectMessage(STREAK_MESSAGES[streakTier]);
   }
 
-  // Priority 3: Handle level changes
+  // Priority 3: Handle level changes (rare, exciting)
   if (state.previousLevel && state.level !== state.previousLevel) {
     const levelUp = ['Twilight Zone', 'Midnight Zone', 'Abyssal Zone', 'Trench Zone'];
     const currentIndex = levelUp.indexOf(state.level);
     const previousIndex = levelUp.indexOf(state.previousLevel);
     if (currentIndex > previousIndex) {
-      return `You just reached a new level: ${state.level}. Growth is happening.`;
+      const msg = selectMessage(LEVEL_UP_MESSAGES);
+      return msg.replace('{level}', state.level);
     }
   }
 
-  // Priority 4: Handle significant point increases
+  // Priority 4: Handle significant point increases (success/reward)
   const pointsGained = state.points - state.previousPoints;
   if (pointsGained >= 30) {
-    return "Massive progress detected. You're leveling up fast.";
+    return selectMessage(SUCCESS_MESSAGES);
+  }
+
+  // Priority 5: Handle regular success (streak of 1-2)
+  if (state.streak === 1) {
+    return selectMessage(STREAK_MESSAGES[1]);
   }
 
   // Default message
-  return "Start with one small win today.";
+  return selectMessage(DEFAULT_MESSAGES);
 }
 
 /**
@@ -167,12 +391,41 @@ if (typeof module !== 'undefined' && module.exports) {
     completeGoal,
     failOrSkipGoal,
     resetMotivationState,
-    getMotivationSummary
+    getMotivationSummary,
+    // Also export message pools for external use
+    MISSED_GOAL_MESSAGES,
+    STREAK_MESSAGES,
+    SUCCESS_MESSAGES,
+    LEVEL_UP_MESSAGES,
+    DEFAULT_MESSAGES,
+    getRandomTier,
+    selectMessage
+  };
+}
+
+// For browser usage - expose functions globally
+if (typeof window !== 'undefined') {
+  window.MotivationEngine = {
+    GoalType,
+    createMotivationState,
+    updateLevel,
+    getMotivationMessage,
+    completeGoal,
+    failOrSkipGoal,
+    resetMotivationState,
+    getMotivationSummary,
+    MISSED_GOAL_MESSAGES,
+    STREAK_MESSAGES,
+    SUCCESS_MESSAGES,
+    LEVEL_UP_MESSAGES,
+    DEFAULT_MESSAGES,
+    getRandomTier,
+    selectMessage
   };
 }
 
 // Example usage
-if (require.main === module) {
+if (typeof require !== 'undefined' && require.main === module) {
   // Create state for studying goal
   let state = createMotivationState(GoalType.STUDYING);
 

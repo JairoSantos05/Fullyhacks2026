@@ -132,12 +132,6 @@
 
     #task-panel { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding-bottom: 32px; }
 
-    #category-select {
-      background: rgba(0,0,0,0.5); border: 0.5px solid rgba(0,238,255,0.3); border-radius: var(--radius-sm);
-      color: var(--cyan); font-family: var(--mono); font-size: 12px; padding: 8px 12px; outline: none;
-      width: 100%; margin-bottom: 2px; -webkit-appearance: none; appearance: none; text-align: center;
-    }
-    
     #input-row { display: flex; gap: 8px; flex-shrink: 0; }
     #task-input {
       flex: 1; background: rgba(0,0,0,0.5); border: 0.5px solid rgba(255,255,255,0.15); border-radius: var(--radius-sm);
@@ -253,13 +247,6 @@
   <div id="msg-bar">Set your first goal below and start the dive...</div>
 
   <div id="task-panel">
-    <select id="category-select">
-      <option value="productivity">🧠 Productivity</option>
-      <option value="studying">📚 Studying</option>
-      <option value="fitness">💪 Fitness</option>
-      <option value="habits">🔄 Habits</option>
-      <option value="learning_skills">🛠 Learning</option>
-    </select>
     <div id="input-row">
       <input
         id="task-input" type="text"
@@ -274,7 +261,11 @@
   </div>
 </div>
 
+<script src="adaptiveSystem.js"></script>
 <script>
+  // Use the motivation engine from adaptiveSystem.js (exposed as window.MotivationEngine)
+  const { getMotivationMessage: getEngineMessage } = window.MotivationEngine;
+
   const ZONES = [
     { threshold: 0, name: "Sunlight Zone", bg: "linear-gradient(180deg, #00528f 0%, #003d7a 60%, #002b5e 100%)", creature: "🐢" },
     { threshold: 150, name: "Twilight Zone", bg: "linear-gradient(180deg, #002b5e 0%, #001a40 60%, #000d2b 100%)", creature: "🐙" },
@@ -286,38 +277,26 @@
   /* ── ENGINE STATE ── */
   let state = { 
     xp: 0, streak: 0, missed: 0, tasks: [], 
-    lastZoneIdx: 0, previousLevel: 'Sunlight Zone', previousXp: 0, goalType: 'productivity' 
+    lastZoneIdx: 0, previousLevel: 'Sunlight Zone', previousXp: 0
   };
 
   function getZoneIdx() { let i = 0; for(let j=0; j<ZONES.length; j++) { if(state.xp >= ZONES[j].threshold) i = j; } return i; }
   function getZone() { return ZONES[getZoneIdx()]; }
   function getNextZone() { const i = getZoneIdx(); return ZONES[i+1] || null; }
 
-  /* ── ADAPTIVE BEHAVIOR ENGINE ── */
+  /* ── ADAPTIVE BEHAVIOR ENGINE (using adaptiveSystem.js) ── */
   function getMotivationMessage() {
-    // 1. Critical Failure Prevention
-    if (state.missed >= 3) return "Pressure is high. Start small—just one step today.";
-    if (state.missed >= 1) return "It's okay to restart. Progress is built on comebacks.";
-
-    // 2. High Momentum 
-    if (state.streak >= 7) return "Elite system building! Submarine hull at maximum efficiency.";
-    if (state.streak >= 3) return "Great consistency! Momentum is building.";
-
-    // 3. Level Up Detection
-    const currentZone = getZone();
-    if (state.previousLevel !== currentZone.name) {
-      let msg = `Level Up: Reached the ${currentZone.name}!`;
-      // Easter Egg for Absolute Focus State
-      if (currentZone.name === "Midnight Zone") msg = "Total darkness. Domain Expansion: Infinite Void.";
-      state.previousLevel = currentZone.name;
-      return msg;
-    }
-
-    // 4. Point Spike Detection
-    const pointsGained = state.xp - state.previousXp;
-    if (pointsGained >= 30) return "Massive progress detected. You're diving fast.";
-
-    return "Dive deeper. Focus on the next meter.";
+    // Create a state object compatible with the engine
+    const engineState = {
+      missedCount: state.missed,
+      streak: state.streak,
+      level: getZone().name,
+      previousLevel: state.previousLevel,
+      points: state.xp,
+      previousPoints: state.previousXp
+    };
+    
+    return getEngineMessage(engineState);
   }
 
   /* ── EFFECTS ── */
@@ -408,14 +387,10 @@
   }
 
   /* ── ENGINE ACTIONS ── */
-  document.getElementById('category-select').addEventListener('change', (e) => {
-    state.goalType = e.target.value;
-  });
-
   function addTask() {
     const input = document.getElementById('task-input'); const text = input.value.trim();
     if (!text) { input.focus(); return; }
-    state.tasks.unshift({ id: Date.now().toString(), text, done: false, missCount: 0, type: state.goalType });
+    state.tasks.unshift({ id: Date.now().toString(), text, done: false, missCount: 0 });
     input.value = ''; updateUI('New goal locked in. Now execute.');
   }
 
