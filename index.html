@@ -429,6 +429,10 @@
     state.streak += 1;
     state.missed = 0;
     
+    // Move completed task to the bottom
+    state.tasks = state.tasks.filter(task => task.id !== id);
+    state.tasks.push(t);
+    
     showPopup('+50 XP');
     updateUI(getMotivationMessage());
   }
