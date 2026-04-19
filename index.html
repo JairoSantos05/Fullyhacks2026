@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Deep Focus — Dive Into Your Goals</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000d1a" />
+  <link rel="apple-touch-icon" href="assets/icon-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -66,20 +69,21 @@
       flex-direction: column; max-width: 480px; margin: 0 auto; padding: 0 16px;
     }
 
-    #hud { display: flex; justify-content: space-between; align-items: flex-start; padding: 44px 0 12px; flex-shrink: 0; }
-    #depth-block { display: flex; flex-direction: column; gap: 2px; }
+    #hud { display: flex; justify-content: center; align-items: flex-start; padding: 44px 0 12px; flex-shrink: 0; }
+    #depth-block { display: none; }
     #depth-num {
       font-family: var(--mono); font-size: 52px; line-height: 1; color: var(--cyan);
       text-shadow: 0 0 24px var(--cyan-glow), 0 0 60px rgba(0,238,255,0.15); letter-spacing: -2px;
     }
     #depth-unit { font-size: 12px; color: var(--white-muted); font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
 
-    #right-hud { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    #right-hud { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     #zone-pill {
-      background: rgba(0,0,0,0.4); border: 0.5px solid rgba(0,238,255,0.25); border-radius: 20px;
-      padding: 5px 12px; font-size: 12px; color: rgba(0,238,255,0.8); font-family: var(--mono); letter-spacing: 0.5px;
+      background: transparent; border: none;
+      padding: 8px 20px; font-size: 20px; color: var(--cyan); font-family: var(--mono); letter-spacing: 0.5px; text-align: center;
+      text-shadow: 0 0 20px var(--cyan-glow), 0 0 40px rgba(0,238,255,0.2); font-weight: 700;
     }
-    #streak-block { text-align: right; }
+    #streak-block { display: none; }
     #streak-num { font-family: var(--mono); font-size: 24px; color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.4); line-height: 1; }
     #streak-label { font-size: 10px; color: var(--white-muted); letter-spacing: 2px; text-transform: uppercase; }
 
@@ -87,9 +91,9 @@
 
     #sub-wrap {
       position: absolute; bottom: 16px; display: flex; flex-direction: column;
-      align-items: center; gap: 6px; animation: sub-idle 4s ease-in-out infinite; pointer-events: none;
+      align-items: center; gap: 6px; animation: sub-roam 12s ease-in-out infinite; pointer-events: none;
     }
-    @keyframes sub-idle { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+    @keyframes sub-roam { 0%,100% { transform: translateX(-40px) translateY(0) rotate(-1deg); } 25% { transform: translateX(-20px) translateY(-6px) rotate(0.5deg); } 50% { transform: translateX(40px) translateY(-4px) rotate(1deg); } 75% { transform: translateX(20px) translateY(-6px) rotate(-0.5deg); } }
     #sub-svg { filter: drop-shadow(0 0 10px var(--cyan-glow)) drop-shadow(0 4px 16px rgba(0,0,0,0.5)); }
     #propeller { animation: spin 0.4s linear infinite; transform-origin: 66px 24px; }
     @keyframes spin { to { transform: rotate(360deg); transform-origin: 66px 24px; } }
@@ -111,6 +115,16 @@
     }
     @keyframes creature-float { 0%,100% { transform: translateY(0) rotate(-4deg) scaleX(-1); } 50% { transform: translateY(-14px) rotate(4deg) scaleX(-1); } }
 
+    #roaming-animals {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .roaming-animal {
+      position: absolute; font-size: 32px; line-height: 1;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+      animation: animal-roam ease-in-out infinite;
+    }
+    @keyframes animal-roam { 0%,100% { transform: translateX(0) translateY(0); } 25% { transform: translateX(calc(var(--tx) * 0.3)) translateY(calc(var(--ty) * 0.3)); } 50% { transform: translateX(var(--tx)) translateY(var(--ty)); } 75% { transform: translateX(calc(var(--tx) * 0.3)) translateY(calc(var(--ty) * 0.3)); } }
+
     #seafloor {
       position: absolute; bottom: 0; left: -16px; right: -16px; height: 1px;
       background: linear-gradient(90deg, transparent, rgba(0,238,255,0.2) 30%, rgba(0,238,255,0.2) 70%, transparent); pointer-events: none;
@@ -123,10 +137,10 @@
       border-radius: 2px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 8px var(--cyan-glow);
     }
     #xp-labels { display: flex; justify-content: space-between; margin-top: 5px; }
-    #xp-labels span { font-size: 11px; color: var(--white-muted); font-family: var(--mono); }
+    #xp-labels span { font-size: 16px; color: var(--white-muted); font-family: var(--mono); }
 
     #msg-bar {
-      flex-shrink: 0; text-align: center; font-size: 13px; color: rgba(0,238,255,0.7);
+      flex-shrink: 0; text-align: center; font-size: 18px; color: rgba(0,238,255,0.7);
       font-style: italic; min-height: 28px; padding: 0 8px 8px; line-height: 1.5; pointer-events: none;
     }
 
@@ -140,6 +154,18 @@
     }
     #task-input::placeholder { color: rgba(255,255,255,0.25); }
     #task-input:focus { border-color: rgba(0,238,255,0.45); box-shadow: 0 0 0 3px rgba(0,238,255,0.08); }
+
+    #mode-toggle {
+      display: flex; gap: 2px; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 2px;
+      flex-shrink: 0;
+    }
+    .mode-btn {
+      background: transparent; border: none; color: rgba(255,255,255,0.5); font-size: 11px;
+      font-weight: 600; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-family: var(--sans);
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none;
+      -webkit-user-select: none; transition: all 0.2s;
+    }
+    .mode-btn.active { background: rgba(0,238,255,0.2); color: #00eeff; }
 
     #add-btn {
       width: 52px; height: 52px; min-width: 52px; background: var(--cyan-dim); border: 0.5px solid rgba(0,238,255,0.4);
@@ -181,6 +207,67 @@
     }
     .miss-btn:active { background: rgba(255,80,80,0.35); }
 
+    .delete-btn {
+      background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 16px;
+      cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    }
+    .delete-btn:hover, .delete-btn:active { color: var(--red-text); }
+
+    .task-item.hierarchical { flex-direction: column; align-items: stretch; gap: 0; }
+    .task-header { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .task-expand-btn {
+      width: 22px; height: 22px; min-width: 22px; border: none; background: transparent;
+      color: var(--cyan); font-size: 14px; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    }
+    .task-expand-btn.expanded { transform: rotate(90deg); }
+    .task-progress-bar {
+      height: 3px; background: rgba(0,238,255,0.15); border-radius: 1.5px; margin: 8px 0;
+      overflow: hidden; flex: 1;
+    }
+    .task-progress-fill {
+      height: 100%; background: linear-gradient(90deg, #0066ff, var(--cyan));
+      border-radius: 1.5px; transition: width 0.3s ease;
+    }
+    .task-progress-text {
+      font-size: 11px; color: var(--white-muted); font-family: var(--mono); white-space: nowrap;
+      margin-left: auto; padding-left: 8px;
+    }
+
+    .subtasks-container {
+      display: none; flex-direction: column; gap: 4px; margin-top: 8px; padding-top: 8px;
+      border-top: 0.5px solid rgba(0,238,255,0.15);
+    }
+    .subtasks-container.visible { display: flex; }
+
+    .subtask-item {
+      display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(0,238,255,0.05);
+      border-radius: 6px; cursor: pointer; animation: task-in 0.2s ease; transition: background 0.2s;
+    }
+    .subtask-item:active:not(.done) { background: rgba(0,238,255,0.15); }
+    .subtask-item.done { opacity: 0.4; pointer-events: none; }
+
+    .subtask-check {
+      width: 18px; height: 18px; border-radius: 4px; border: 1.2px solid rgba(0,238,255,0.35);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+      font-size: 10px; color: #001a33; font-weight: 700;
+    }
+    .subtask-item.done .subtask-check { background: var(--cyan); border-color: var(--cyan); }
+
+    .subtask-text {
+      flex: 1; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.3;
+    }
+    .subtask-item.done .subtask-text { text-decoration: line-through; color: rgba(255,255,255,0.25); }
+
+    .subtask-miss-btn {
+      background: transparent; border: 0.5px solid rgba(255,80,80,0.25); color: rgba(255,130,130,0.7);
+      border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer; flex-shrink: 0;
+      font-family: var(--sans); touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      min-height: 26px; display: flex; align-items: center; user-select: none; -webkit-user-select: none;
+    }
+    .subtask-miss-btn:active { background: rgba(255,80,80,0.15); }
+
     #xp-popup {
       position: fixed; font-family: var(--mono); font-size: 20px; color: var(--cyan);
       text-shadow: 0 0 12px var(--cyan-glow); pointer-events: none; opacity: 0; z-index: 100;
@@ -198,7 +285,7 @@
 <div id="ocean-bg"></div>
 <div id="caustics"></div>
 <div id="zone-flash"></div>
-<div id="xp-popup">+50 XP</div>
+<div id="xp-popup">+50 Meters</div>
 
 <div id="app">
   <div id="hud">
@@ -212,12 +299,13 @@
         <div id="streak-num">0</div>
         <div id="streak-label">streak</div>
       </div>
+      <button onclick="pingDiscord()" style="background:var(--cyan-dim); border:0.5px solid var(--cyan); color:var(--cyan); padding:4px 10px; border-radius:10px; font-size:10px; cursor:pointer; margin-top:5px; font-family:var(--mono);">🔔 PING ME</button>
     </div>
   </div>
 
   <div id="ocean-viewport">
     <div id="sonar-wrap"><div class="sonar-ring"></div><div class="sonar-ring"></div><div class="sonar-ring"></div><div id="sonar-dot"></div></div>
-    <div id="creature">🐢</div>
+    <div id="roaming-animals"></div>
     <div id="sub-wrap">
       <svg id="sub-svg" width="90" height="48" viewBox="0 0 90 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="44" cy="32" rx="34" ry="13" fill="#2a7abf"/>
@@ -241,7 +329,7 @@
 
   <div id="xp-section">
     <div id="xp-track"><div id="xp-fill" style="width:0%"></div></div>
-    <div id="xp-labels"><span id="xp-cur">0 XP</span><span id="xp-next">Next zone: 150 XP</span></div>
+    <div id="xp-labels"><span id="xp-cur">0 Meters</span><span id="xp-next">Next zone: 150 Meters</span></div>
   </div>
 
   <div id="msg-bar">Set your first goal below and start the dive...</div>
@@ -250,9 +338,13 @@
     <div id="input-row">
       <input
         id="task-input" type="text"
-        placeholder="e.g. Formalize Pigeonhole Principle in Lean 4..."
+        placeholder="What do you want to achieve?"
         maxlength="80" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done"
       />
+      <div id="mode-toggle">
+        <button id="mode-task" class="mode-btn active">Task</button>
+        <button id="mode-step" class="mode-btn">Step</button>
+      </div>
       <button id="add-btn">+</button>
     </div>
     <div id="task-list">
@@ -274,15 +366,112 @@
     { threshold: 3000, name: "Hadal Zone", bg: "linear-gradient(180deg, #000000 0%, #020008 100%)", creature: "🪼" }
   ];
 
+  const ANIMALS_BY_ZONE = {
+    0: { emoji: "🐟", name: "Fish" },
+    1: { emoji: "🐙", name: "Octopus" },
+    2: { emoji: "🐋", name: "Whale" },
+    3: { emoji: "🦑", name: "Squid" },
+    4: { emoji: "🪼", name: "Jellyfish" }
+  };
+
   /* ── ENGINE STATE ── */
   let state = { 
     xp: 0, streak: 0, missed: 0, tasks: [], 
-    lastZoneIdx: 0, previousLevel: 'Sunlight Zone', previousXp: 0
+    lastZoneIdx: 0, previousLevel: 'Sunlight Zone', previousXp: 0,
+    unlockedAnimals: [0],  // Start with zone 0 animals unlocked
+    animalInstances: [],   // Track active roaming animals
+    inputMode: 'task',     // 'task' or 'subtask'
+    lastCreatedTaskId: null
   };
 
   function getZoneIdx() { let i = 0; for(let j=0; j<ZONES.length; j++) { if(state.xp >= ZONES[j].threshold) i = j; } return i; }
   function getZone() { return ZONES[getZoneIdx()]; }
   function getNextZone() { const i = getZoneIdx(); return ZONES[i+1] || null; }
+
+  /* ── ROAMING ANIMALS SYSTEM ── */
+  function spawnRoamingAnimals() {
+    const container = document.getElementById('roaming-animals');
+    container.innerHTML = '';
+    state.animalInstances = [];
+    
+    // Spawn 1 animal per unlocked zone, positioned in upper portion
+    for (const zoneIdx of state.unlockedAnimals) {
+      const el = document.createElement('div');
+      el.className = 'roaming-animal';
+      el.textContent = ANIMALS_BY_ZONE[zoneIdx].emoji;
+      
+      // Spawn in upper half of viewport
+      const x = Math.random() * 300 - 150;
+      const y = Math.random() * 60 - 80;  // Upper portion, above message area
+      el.style.left = (150 + x) + 'px';
+      el.style.top = (60 + y) + 'px';
+      
+      const dirX = (Math.random() - 0.5) * 400;
+      const dirY = (Math.random() - 0.5) * 150;
+      const duration = 10 + Math.random() * 8;
+      
+      el.style.setProperty('--tx', dirX + 'px');
+      el.style.setProperty('--ty', dirY + 'px');
+      el.style.animationDuration = duration + 's';
+      el.style.animationDelay = Math.random() * 2 + 's';
+      
+      container.appendChild(el);
+      state.animalInstances.push({ el, zoneIdx, duration });
+    }
+  }
+
+  function unlockAnimalForZone(zoneIdx) {
+    if (!state.unlockedAnimals.includes(zoneIdx)) {
+      state.unlockedAnimals.push(zoneIdx);
+      spawnRoamingAnimals();
+    }
+  }
+
+  function checkZoneProgression() {
+    const currentZone = getZoneIdx();
+    if (currentZone !== state.lastZoneIdx) {
+      unlockAnimalForZone(currentZone);
+    }
+  }
+
+  /* ── PERSISTENCE ENGINE (Mobile Save State) ── */
+  function saveState() {
+    localStorage.setItem('deepSeaState', JSON.stringify(state));
+  }
+
+  function loadState() {
+    const saved = localStorage.getItem('deepSeaState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = Object.assign({}, state, parsed);
+      if (!state.tasks) state.tasks = [];
+      if (!state.unlockedAnimals) state.unlockedAnimals = [0];
+      if (!state.inputMode) state.inputMode = 'task';
+      
+      // Migrate old data format
+      state.tasks = state.tasks.map(t => {
+        if (t.text !== undefined) { t.title = t.text; delete t.text; }
+        if (t.done !== undefined) { t.completed = t.done; delete t.done; }
+        if (!t.subtasks) t.subtasks = [];
+        return t;
+      });
+    }
+  }
+
+  /* ── DISCORD REMINDER ENGINE ── */
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1495329821566173216/5M8ALcxdM7LOL5TvSIFSOUcfQzNEYGj6nkk5KPZV6YeEFhLo1NFCgUMAJUJ6avHL2u-a";
+
+  function pingDiscord() {
+    if (state.tasks.length === 0) {
+      showPopup("No goals to remind you of!");
+      return;
+    }
+    const currentTask = state.tasks[0].title;
+    const payload = { content: `🚨 **Submarine Ping!** 🚨\nGet back to work! Your current target is: **${currentTask}**\n\n*Current Depth: ${state.xp}m | Streak: ${state.streak}*` };
+    fetch(DISCORD_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(() => showPopup("Ping Sent!"))
+      .catch(err => showPopup("Ping Failed!"));
+  }
 
   /* ── ADAPTIVE BEHAVIOR ENGINE (using adaptiveSystem.js) ── */
   function getMotivationMessage() {
@@ -347,89 +536,387 @@
     document.getElementById('depth-num').textContent = state.xp;
     document.getElementById('zone-pill').textContent = zone.name;
     document.getElementById('streak-num').textContent = state.streak;
-    document.getElementById('creature').textContent = zone.creature;
+
+    // Check for zone progression and unlock new animals
+    checkZoneProgression();
 
     if (zi !== state.lastZoneIdx) { zoneFlash(); spawnBubbles(); state.lastZoneIdx = zi; }
 
     const pct = nz ? Math.min(100, Math.round(((state.xp - zone.threshold) / (nz.threshold - zone.threshold)) * 100)) : 100;
     document.getElementById('xp-fill').style.width = pct + '%';
-    document.getElementById('xp-cur').textContent = state.xp + ' XP';
-    document.getElementById('xp-next').textContent = nz ? 'Next zone: ' + nz.threshold + ' XP' : 'MAX DEPTH REACHED';
+    document.getElementById('xp-cur').textContent = state.xp + ' Meters';
+    document.getElementById('xp-next').textContent = nz ? 'Next zone: ' + nz.threshold + ' Meters' : 'MAX DEPTH REACHED';
     
     if (msg) document.getElementById('msg-bar').textContent = msg;
     renderTasks();
+    saveState();
   }
 
   /* ── RENDER TASKS ── */
   function renderTasks() {
     const list = document.getElementById('task-list');
     if (state.tasks.length === 0) {
-      list.innerHTML = '<div id="empty-state">No goals yet.<br>Every task is a meter deeper.</div>'; return;
+      list.innerHTML = '<div id="empty-state">No goals yet.<br>Every task is a meter deeper.</div>';
+      return;
     }
     list.innerHTML = '';
-    for (const t of state.tasks) {
-      const el = document.createElement('div'); el.className = 'task-item' + (t.done ? ' done' : '');
-      const check = document.createElement('div'); check.className = 'task-check'; if (t.done) check.textContent = '✓';
-      const txt = document.createElement('span'); txt.className = 'task-text'; txt.textContent = t.text;
-      el.appendChild(check); el.appendChild(txt);
-
-      if (!t.done) {
-        const miss = document.createElement('button'); miss.className = 'miss-btn'; miss.textContent = 'Missed';
-        miss.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); missTask(t.id); }, { passive: false });
-        miss.addEventListener('click', function(e) { e.stopPropagation(); missTask(t.id); });
-        el.appendChild(miss);
-
-        el.addEventListener('touchend', function(e) { if(e.target.closest('.miss-btn')) return; e.preventDefault(); completeTask(t.id); }, { passive: false });
-        el.addEventListener('click', function(e) { if(e.target.closest('.miss-btn')) return; completeTask(t.id); });
+    
+    for (const task of state.tasks) {
+      const el = document.createElement('div');
+      el.className = 'task-item' + (task.completed ? ' done' : '') + (task.subtasks && task.subtasks.length > 0 ? ' hierarchical' : '');
+      el.setAttribute('data-task-id', task.id);
+      
+      // Task header
+      const header = document.createElement('div');
+      header.className = 'task-header';
+      
+      // Expand button (only if has subtasks)
+      if (task.subtasks && task.subtasks.length > 0) {
+        const expandBtn = document.createElement('button');
+        expandBtn.className = 'task-expand-btn';
+        if (task.isExpanded) {
+          expandBtn.classList.add('expanded');  // Show rotated arrow if expanded
+        }
+        expandBtn.textContent = '▶';
+        expandBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleExpandTask(task.id); });
+        header.appendChild(expandBtn);
       }
+      
+      // Checkbox
+      const check = document.createElement('div');
+      check.className = 'task-check';
+      if (task.completed) check.textContent = '✓';
+      header.appendChild(check);
+      
+      // Task text + progress
+      const textContainer = document.createElement('div');
+      textContainer.style.flex = '1';
+      const txt = document.createElement('span');
+      txt.className = 'task-text';
+      txt.textContent = task.title;
+      textContainer.appendChild(txt);
+      
+      // Progress bar (if has subtasks)
+      if (task.subtasks && task.subtasks.length > 0) {
+        const progress = window.MotivationEngine.getTaskProgress(task);
+        const completed = task.subtasks.filter(st => st.completed).length;
+        
+        const progressContainer = document.createElement('div');
+        progressContainer.style.display = 'flex';
+        progressContainer.style.gap = '8px';
+        progressContainer.style.marginTop = '4px';
+        progressContainer.style.alignItems = 'center';
+        
+        const progressBar = document.createElement('div');
+        progressBar.className = 'task-progress-bar';
+        const progressFill = document.createElement('div');
+        progressFill.className = 'task-progress-fill';
+        progressFill.style.width = progress + '%';
+        progressBar.appendChild(progressFill);
+        
+        const progressText = document.createElement('div');
+        progressText.className = 'task-progress-text';
+        progressText.textContent = `${completed}/${task.subtasks.length}`;
+        
+        progressContainer.appendChild(progressBar);
+        progressContainer.appendChild(progressText);
+        textContainer.appendChild(progressContainer);
+      }
+      
+      header.appendChild(textContainer);
+      
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('.miss-btn') || e.target.closest('.delete-btn') || e.target.closest('.task-expand-btn')) return;
+        toggleTaskCompletion(task.id);
+      });
+      
+      // Miss button
+      if (!task.completed) {
+        const miss = document.createElement('button');
+        miss.className = 'miss-btn';
+        miss.textContent = task.subtasks && task.subtasks.length > 0 ? 'Collapse' : 'Missed';
+        miss.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); 
+          if (task.subtasks && task.subtasks.length > 0) {
+            toggleTaskExpansion(task.id);
+          } else {
+            missTask(task.id);
+          }
+        }, { passive: false });
+        miss.addEventListener('click', function(e) { e.stopPropagation(); 
+          if (task.subtasks && task.subtasks.length > 0) {
+            toggleTaskExpansion(task.id);
+          } else {
+            missTask(task.id);
+          }
+        });
+        header.appendChild(miss);
+      }
+      
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.innerHTML = '&times;';
+      delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteTask(task.id); });
+      delBtn.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); deleteTask(task.id); }, { passive: false });
+      header.appendChild(delBtn);
+
+      el.appendChild(header);
+      
+      // Subtasks
+      if (task.subtasks && task.subtasks.length > 0) {
+        const subtasksContainer = document.createElement('div');
+        subtasksContainer.className = 'subtasks-container';
+        
+        // Add 'visible' class if task is expanded
+        if (task.isExpanded) {
+          subtasksContainer.classList.add('visible');
+        }
+        
+        for (const subtask of task.subtasks) {
+          const subtaskEl = document.createElement('div');
+          subtaskEl.className = 'subtask-item' + (subtask.completed ? ' done' : '');
+          
+          const stCheck = document.createElement('div');
+          stCheck.className = 'subtask-check';
+          if (subtask.completed) stCheck.textContent = '✓';
+          subtaskEl.appendChild(stCheck);
+          
+          const stTxt = document.createElement('span');
+          stTxt.className = 'subtask-text';
+          stTxt.textContent = subtask.title;
+          subtaskEl.appendChild(stTxt);
+          
+          if (!subtask.completed) {
+            const stMiss = document.createElement('button');
+            stMiss.className = 'subtask-miss-btn';
+            stMiss.textContent = 'Skip';
+            stMiss.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); handleSubtaskMiss(task.id, subtask.id); }, { passive: false });
+            stMiss.addEventListener('click', (e) => { e.stopPropagation(); handleSubtaskMiss(task.id, subtask.id); });
+            subtaskEl.appendChild(stMiss);
+            
+            subtaskEl.addEventListener('click', (e) => {
+              if (e.target.closest('.subtask-miss-btn') || e.target.closest('.delete-btn')) return;
+              handleSubtaskCompletion(task.id, subtask.id);
+            });
+          }
+          
+          const stDelBtn = document.createElement('button');
+          stDelBtn.className = 'delete-btn';
+          stDelBtn.innerHTML = '&times;';
+          stDelBtn.style.fontSize = '14px';
+          stDelBtn.addEventListener('click', (e) => { e.stopPropagation(); handleSubtaskDeletion(task.id, subtask.id); });
+          stDelBtn.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); handleSubtaskDeletion(task.id, subtask.id); }, { passive: false });
+          subtaskEl.appendChild(stDelBtn);
+
+          subtasksContainer.appendChild(subtaskEl);
+        }
+        
+        el.appendChild(subtasksContainer);
+      }
+      
       list.appendChild(el);
     }
   }
 
   /* ── ENGINE ACTIONS ── */
   function addTask() {
-    const input = document.getElementById('task-input'); const text = input.value.trim();
+    const input = document.getElementById('task-input');
+    const text = input.value.trim();
     if (!text) { input.focus(); return; }
-    state.tasks.unshift({ id: Date.now().toString(), text, done: false, missCount: 0 });
-    input.value = ''; updateUI('New goal locked in. Now execute.');
+    
+    if (state.inputMode === 'task') {
+      // Create hierarchical task using engine
+      const newTask = window.MotivationEngine.createTask(Date.now(), text, []);
+      newTask.isExpanded = false;  // Initialize expansion state
+      state.tasks.unshift(newTask);
+      state.lastCreatedTaskId = newTask.id;
+      input.value = '';
+      updateUI('New goal locked in. Add steps or jump straight in.');
+    } else if (state.inputMode === 'subtask') {
+      // Add subtask to last created task
+      if (!state.lastCreatedTaskId) {
+        alert('Create a main task first before adding steps.');
+        return;
+      }
+      
+      const taskIdx = state.tasks.findIndex(x => x.id === state.lastCreatedTaskId);
+      if (taskIdx === -1) return;
+      
+      const task = state.tasks[taskIdx];
+      const newSubtaskId = task.subtasks.length + 1;
+      const newSubtask = window.MotivationEngine.createSubtask(newSubtaskId, text);
+      
+      task.subtasks.push(newSubtask);
+      task.isExpanded = true; // Auto-expand
+      
+      input.value = '';
+      updateUI('Step added. Building momentum...');
+    }
+  }
+
+  function toggleExpandTask(id) {
+    const taskIdx = state.tasks.findIndex(x => x.id === id);
+    if (taskIdx === -1) return;
+    
+    const task = state.tasks[taskIdx];
+    task.isExpanded = !task.isExpanded;
+    renderTasks();
   }
 
   function completeTask(id) {
-    const t = state.tasks.find(x => x.id === id);
-    if (!t || t.done) return;
-    t.done = true;
+    const taskIdx = state.tasks.findIndex(x => x.id === id);
+    if (taskIdx === -1) return;
     
+    const task = state.tasks[taskIdx];
+    
+    // For tasks with subtasks: can only complete if all subtasks are done
+    if (task.subtasks && task.subtasks.length > 0) {
+      const allSubtasksDone = task.subtasks.every(st => st.completed);
+      if (!allSubtasksDone) {
+        // Not all subtasks complete - show feedback but don't complete
+        updateUI('Complete all steps to finish this goal.');
+        return;
+      }
+    }
+    
+    // Complete the task
     state.previousXp = state.xp;
     state.xp += 50;
     state.streak += 1;
     state.missed = 0;
     
-    // Move completed task to the bottom
-    state.tasks = state.tasks.filter(task => task.id !== id);
-    state.tasks.push(t);
+    const completedTask = { ...task, completed: true };
+    state.tasks = state.tasks.filter((_, i) => i !== taskIdx);
+    state.tasks.push(completedTask);
     
-    showPopup('+50 XP');
+    showPopup('+50 Meters');
     updateUI(getMotivationMessage());
+  }
+
+  function toggleTaskCompletion(id) {
+    completeTask(id);
+  }
+
+  function toggleTaskExpansion(id) {
+    toggleExpandTask(id);
+  }
+
+  function handleSubtaskCompletion(taskId, subtaskId) {
+    const taskIdx = state.tasks.findIndex(x => x.id === taskId);
+    if (taskIdx === -1) return;
+    
+    const task = state.tasks[taskIdx];
+    const result = window.MotivationEngine.completeSubtaskWithMotivation(
+      task,
+      subtaskId,
+      {
+        points: state.xp,
+        streak: state.streak,
+        missedCount: state.missed,
+        level: getZone().name,
+        previousLevel: state.previousLevel,
+        previousPoints: state.previousXp
+      }
+    );
+    
+    // Update state
+    state.previousXp = state.xp;
+    state.tasks[taskIdx] = result.updatedTask;
+    state.xp = result.motivationState.points;
+    state.streak = result.motivationState.streak;
+    state.missed = result.motivationState.missedCount;
+    state.previousLevel = result.motivationState.previousLevel;
+    
+    showPopup(`+${result.reward} Meters`);
+    
+    if (result.isMainTaskComplete) {
+      // Move completed task to bottom
+      const completedTask = state.tasks.splice(taskIdx, 1)[0];
+      state.tasks.push(completedTask);
+    }
+    
+    updateUI(result.motivationState.message);
+  }
+
+  function handleSubtaskMiss(taskId, subtaskId) {
+    const taskIdx = state.tasks.findIndex(x => x.id === taskId);
+    if (taskIdx === -1) return;
+    
+    const task = state.tasks[taskIdx];
+    const result = window.MotivationEngine.missSubtaskWithMotivation(
+      task,
+      subtaskId,
+      {
+        points: state.xp,
+        streak: state.streak,
+        missedCount: state.missed,
+        level: getZone().name,
+        previousLevel: state.previousLevel,
+        previousPoints: state.previousXp
+      }
+    );
+    
+    // Update state
+    state.previousXp = state.xp;
+    state.xp = result.motivationState.points;
+    state.streak = result.motivationState.streak;
+    state.missed = result.motivationState.missedCount;
+    
+    updateUI(result.motivationState.message);
   }
 
   function missTask(id) {
-    const t = state.tasks.find(x => x.id === id);
-    if (!t || t.done) return;
-    t.missCount = (t.missCount || 0) + 1;
+    const taskIdx = state.tasks.findIndex(x => x.id === id);
+    if (taskIdx === -1) return;
     
-    state.previousXp = state.xp;
-    state.streak = 0;
-    state.missed += 1;
-
-    // Friction Engine Modification
-    if (t.missCount >= 2 && !t.text.includes("Just start:")) {
-      t.text = 'Just start: ' + t.text.substring(0, 30) + '...';
+    const task = state.tasks[taskIdx];
+    
+    // If task has no subtasks, mark it as missed (reset streak)
+    if (!task.subtasks || task.subtasks.length === 0) {
+      state.previousXp = state.xp;
+      state.streak = 0;
+      state.missed += 1;
+      
+      updateUI(getMotivationMessage());
+    } else {
+      // For hierarchical tasks, "Collapse" button just toggles expand state
+      toggleExpandTask(id);
     }
-    updateUI(getMotivationMessage());
+  }
+
+  function deleteTask(id) {
+    state.tasks = state.tasks.filter(x => x.id !== id);
+    if (state.lastCreatedTaskId === id) state.lastCreatedTaskId = null;
+    updateUI('Goal deleted.');
+  }
+
+  function handleSubtaskDeletion(taskId, subtaskId) {
+    const taskIdx = state.tasks.findIndex(x => x.id === taskId);
+    if (taskIdx === -1) return;
+    const task = state.tasks[taskIdx];
+    task.subtasks = task.subtasks.filter(x => x.id !== subtaskId);
+    updateUI('Step deleted.');
   }
 
   /* ── BINDINGS ── */
-  let addBtnLocked = false; const addBtn = document.getElementById('add-btn');
+  let addBtnLocked = false; 
+  const addBtn = document.getElementById('add-btn');
+  const modeTaskBtn = document.getElementById('mode-task');
+  const modeStepBtn = document.getElementById('mode-step');
+  
+  // Mode toggle
+  modeTaskBtn.addEventListener('click', () => {
+    state.inputMode = 'task';
+    modeTaskBtn.classList.add('active');
+    modeStepBtn.classList.remove('active');
+  });
+  
+  modeStepBtn.addEventListener('click', () => {
+    state.inputMode = 'subtask';
+    modeStepBtn.classList.add('active');
+    modeTaskBtn.classList.remove('active');
+  });
+  
+  // Add button
   addBtn.addEventListener('touchend', function(e) {
     e.preventDefault(); if (addBtnLocked) return; addBtnLocked = true; addTask(); setTimeout(() => { addBtnLocked = false; }, 400);
   }, { passive: false });
@@ -441,7 +928,12 @@
   taskInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); addTask(); } });
   
   /* ── INIT ── */
-  spawnRays(); spawnBubbles(); updateUI('Set your first goal below and start the dive...');
+  loadState();
+  spawnRays(); spawnBubbles(); spawnRoamingAnimals(); updateUI('Set your first goal below and start the dive...');
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.error('SW reg failed', err));
+  }
 </script>
 </body>
 </html>
