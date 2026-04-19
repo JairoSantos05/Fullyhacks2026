@@ -3,14 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Deep Focus — Dive Into Your Goals</title>
+  <title>Submerge</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#000d1a" />
-  <link rel="apple-touch-icon" href="assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/cute-diver-floating-with-submarine-balloon-cartoon-vector-icon-illustration-science-transportation_138676-9379.png" />
+  <meta name="apple-mobile-web-app-title" content="Submerge">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
+    @font-face {
+      font-family: 'Super Water';
+      src: url('assets/SuperWater-PVoOm.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -24,6 +32,7 @@
       --red-text: rgba(255,130,130,0.9);
       --radius: 14px;
       --radius-sm: 8px;
+      --title-font: 'Super Water', cursive;
       --mono: 'Space Mono', monospace;
       --sans: 'DM Sans', sans-serif;
     }
@@ -31,7 +40,7 @@
     html, body {
       height: 100%;
       background: #000d1a;
-      font-family: var(--sans);
+      font-family: var(--title-font);
       color: var(--white);
       overflow: hidden;
       -webkit-tap-highlight-color: transparent;
@@ -72,27 +81,24 @@
     #hud { display: flex; justify-content: center; align-items: flex-start; padding: 44px 0 12px; flex-shrink: 0; }
     #depth-block { display: none; }
     #depth-num {
-      font-family: var(--mono); font-size: 52px; line-height: 1; color: var(--cyan);
+      font-family: var(--title-font); font-size: 52px; line-height: 1; color: var(--cyan);
       text-shadow: 0 0 24px var(--cyan-glow), 0 0 60px rgba(0,238,255,0.15); letter-spacing: -2px;
     }
-    #depth-unit { font-size: 12px; color: var(--white-muted); font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
+    #depth-unit { font-size: 12px; color: var(--white-muted); font-family: var(--title-font); letter-spacing: 2px; text-transform: uppercase; }
 
     #right-hud { display: flex; flex-direction: column; align-items: center; gap: 8px; }
     #zone-pill {
       background: transparent; border: none;
-      padding: 8px 20px; font-size: 20px; color: var(--cyan); font-family: var(--mono); letter-spacing: 0.5px; text-align: center;
+      padding: 8px 20px; font-size: 20px; color: var(--cyan); font-family: var(--title-font); letter-spacing: 0.5px; text-align: center;
       text-shadow: 0 0 20px var(--cyan-glow), 0 0 40px rgba(0,238,255,0.2); font-weight: 700;
     }
     #streak-block { display: none; }
-    #streak-num { font-family: var(--mono); font-size: 24px; color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.4); line-height: 1; }
+    #streak-num { font-family: var(--title-font); font-size: 24px; color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.4); line-height: 1; }
     #streak-label { font-size: 10px; color: var(--white-muted); letter-spacing: 2px; text-transform: uppercase; }
 
     #ocean-viewport { flex-shrink: 0; height: 200px; position: relative; display: flex; align-items: flex-end; justify-content: center; }
 
-    #sub-wrap {
-      position: absolute; bottom: 16px; display: flex; flex-direction: column;
-      align-items: center; gap: 6px; animation: sub-roam 12s ease-in-out infinite; pointer-events: none;
-    }
+    /* old #sub-wrap positioning moved to #sub-diver */
     @keyframes sub-roam { 0%,100% { transform: translateX(-40px) translateY(0) rotate(-1deg); } 25% { transform: translateX(-20px) translateY(-6px) rotate(0.5deg); } 50% { transform: translateX(40px) translateY(-4px) rotate(1deg); } 75% { transform: translateX(20px) translateY(-6px) rotate(-0.5deg); } }
     #sub-svg { filter: drop-shadow(0 0 10px var(--cyan-glow)) drop-shadow(0 4px 16px rgba(0,0,0,0.5)); }
     #propeller { animation: spin 0.4s linear infinite; transform-origin: 66px 24px; }
@@ -137,7 +143,7 @@
       border-radius: 2px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 8px var(--cyan-glow);
     }
     #xp-labels { display: flex; justify-content: space-between; margin-top: 5px; }
-    #xp-labels span { font-size: 16px; color: var(--white-muted); font-family: var(--mono); }
+    #xp-labels span { font-size: 16px; color: var(--white-muted); font-family: var(--title-font); }
 
     #msg-bar {
       flex-shrink: 0; text-align: center; font-size: 18px; color: rgba(0,238,255,0.7);
@@ -161,7 +167,7 @@
     }
     .mode-btn {
       background: transparent; border: none; color: rgba(255,255,255,0.5); font-size: 11px;
-      font-weight: 600; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-family: var(--sans);
+      font-weight: 600; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-family: var(--title-font);
       touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none;
       -webkit-user-select: none; transition: all 0.2s;
     }
@@ -187,6 +193,7 @@
       display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.38); border: 0.5px solid rgba(255,255,255,0.1);
       border-radius: var(--radius-sm); padding: 13px 12px; cursor: pointer; animation: task-in 0.25s ease;
       touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; min-height: 54px;
+      flex-shrink: 0;
     }
     @keyframes task-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
     .task-item:active:not(.done) { background: rgba(0,0,0,0.6); border-color: rgba(0,238,255,0.4); }
@@ -197,12 +204,12 @@
       display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 12px; color: #001a33; font-weight: 700;
     }
     .task-item.done .task-check { background: var(--cyan); border-color: var(--cyan); }
-    .task-text { flex: 1; font-size: 14px; color: rgba(255,255,255,0.88); line-height: 1.35; }
+    .task-text { flex: 1; font-size: 14px; color: rgba(255,255,255,0.88); line-height: 1.35; font-family: var(--sans); }
     .task-item.done .task-text { text-decoration: line-through; color: rgba(255,255,255,0.3); }
 
     .miss-btn {
       background: var(--red-dim); border: 0.5px solid var(--red-border); color: var(--red-text); border-radius: 6px;
-      padding: 7px 11px; font-size: 12px; cursor: pointer; flex-shrink: 0; font-family: var(--sans); touch-action: manipulation;
+      padding: 7px 11px; font-size: 12px; cursor: pointer; flex-shrink: 0; font-family: var(--title-font); touch-action: manipulation;
       -webkit-tap-highlight-color: transparent; min-height: 34px; display: flex; align-items: center; user-select: none; -webkit-user-select: none;
     }
     .miss-btn:active { background: rgba(255,80,80,0.35); }
@@ -231,7 +238,7 @@
       border-radius: 1.5px; transition: width 0.3s ease;
     }
     .task-progress-text {
-      font-size: 11px; color: var(--white-muted); font-family: var(--mono); white-space: nowrap;
+      font-size: 11px; color: var(--white-muted); font-family: var(--title-font); white-space: nowrap;
       margin-left: auto; padding-left: 8px;
     }
 
@@ -256,20 +263,20 @@
     .subtask-item.done .subtask-check { background: var(--cyan); border-color: var(--cyan); }
 
     .subtask-text {
-      flex: 1; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.3;
+      flex: 1; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.3; font-family: var(--sans);
     }
     .subtask-item.done .subtask-text { text-decoration: line-through; color: rgba(255,255,255,0.25); }
 
     .subtask-miss-btn {
       background: transparent; border: 0.5px solid rgba(255,80,80,0.25); color: rgba(255,130,130,0.7);
       border-radius: 4px; padding: 4px 8px; font-size: 10px; cursor: pointer; flex-shrink: 0;
-      font-family: var(--sans); touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+      font-family: var(--title-font); touch-action: manipulation; -webkit-tap-highlight-color: transparent;
       min-height: 26px; display: flex; align-items: center; user-select: none; -webkit-user-select: none;
     }
     .subtask-miss-btn:active { background: rgba(255,80,80,0.15); }
 
     #xp-popup {
-      position: fixed; font-family: var(--mono); font-size: 20px; color: var(--cyan);
+      position: fixed; font-family: var(--title-font); font-size: 20px; color: var(--cyan);
       text-shadow: 0 0 12px var(--cyan-glow); pointer-events: none; opacity: 0; z-index: 100;
       left: 50%; top: 45%; transform: translateX(-50%) translateY(0);
     }
@@ -277,6 +284,62 @@
 
     @media (max-height: 700px) {
       #depth-num { font-size: 38px; } #ocean-viewport { height: 140px; } #creature { font-size: 34px; } #hud { padding-top: 28px; }
+    }
+    /* ── EGG ANIMATION SYSTEM ── */
+    #egg-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0, 13, 26, 0.85); z-index: 200; pointer-events: none; }
+    #egg-overlay.show { display: flex; }
+    #egg-container { position: relative; font-size: 140px; line-height: 1; filter: drop-shadow(0 0 30px rgba(0, 238, 255, 0.4)); }
+    #egg-container.stage-appear { animation: egg-appear 0.6s ease-out forwards; }
+    #egg-container.stage-shake { animation: egg-shake 1.2s ease-in-out infinite; }
+    #egg-container.stage-crack { animation: egg-crack 0.5s ease-in-out forwards; }
+    @keyframes egg-appear { from { opacity: 0; transform: scale(0.3); } to { opacity: 1; transform: scale(1); } }
+    @keyframes egg-shake { 0%, 100% { transform: translateX(0) rotate(0deg); } 25% { transform: translateX(-8px) rotate(-2deg); } 50% { transform: translateX(8px) rotate(2deg); } 75% { transform: translateX(-4px) rotate(-1deg); } }
+    @keyframes egg-crack { 0% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { transform: scale(1.05) rotate(-3deg); } 100% { opacity: 0; transform: scale(0.8) rotate(0deg); } }
+
+    /* ── ANIMAL REVEAL OVERLAY ── */
+    #animal-reveal-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0, 13, 26, 0.9); z-index: 199; pointer-events: none; }
+    #animal-reveal-overlay.show { display: flex; }
+    #revealed-animal-container { position: relative; text-align: center; }
+    #revealed-animal-emoji { font-size: 120px; line-height: 1; filter: drop-shadow(0 0 40px rgba(0, 238, 255, 0.6)); animation: creature-reveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; margin-bottom: 16px; }
+    #revealed-animal-name { font-family: var(--title-font); font-size: 22px; color: var(--cyan); text-shadow: 0 0 20px var(--cyan-glow); animation: name-reveal 0.6s ease-out 0.3s forwards; opacity: 0; letter-spacing: 1px; }
+    @keyframes creature-reveal { from { opacity: 0; transform: scale(0.5) translateY(40px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes name-reveal { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    #zone-unlock-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; font-family: var(--title-font); font-size: 18px; color: var(--cyan); opacity: 0; z-index: 1; text-shadow: 0 0 10px var(--cyan-glow); }
+    #zone-unlock-text.show { animation: text-reveal 0.8s ease-in-out 1.8s forwards; }
+    @keyframes text-reveal { from { opacity: 0; transform: translate(-50%, -50%) translateY(20px); } to { opacity: 1; transform: translate(-50%, -50%) translateY(0); } }
+
+    /* ── HUD LAYOUT ── */
+    #hud { display: flex; flex-direction: column; align-items: center; padding: 32px 16px 12px; flex-shrink: 0; gap: 4px; }
+    #app-title { font-family: var(--title-font); font-size: 72px; font-weight: normal; color: var(--cyan); text-shadow: 0 0 24px var(--cyan-glow), 0 0 60px rgba(0,238,255,0.15); letter-spacing: 4px; margin: 0 0 4px 0; line-height: 1; }
+    #zone-header { text-align: center; margin-bottom: 4px; }
+    #streak-block { display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 6px; margin-top: 2px; }
+    #streak-num { font-family: var(--title-font); font-size: 12px; color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.4); font-weight: 600; }
+    #streak-label { font-size: 9px; color: var(--white-muted); letter-spacing: 1px; text-transform: uppercase; }
+    #button-row { display: flex; flex-direction: row; gap: 8px; justify-content: center; margin-top: 6px; }
+    .hud-btn { font-family: var(--title-font); font-size: 10px; font-weight: 600; padding: 6px 14px; border-radius: 6px; cursor: pointer; border: 0.5px solid; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+    .ping-btn { background: var(--cyan-dim); border-color: var(--cyan); color: var(--cyan); }
+    .reset-btn { background: var(--red-dim); border-color: var(--red-border); color: var(--red-text); }
+    /* ── SUB DIVE ANIMATION ── */
+    #sub-diver {
+      position: absolute; bottom: 16px;
+      display: flex; justify-content: center; width: 100%;
+      pointer-events: none;
+    }
+    #sub-diver.diving {
+      animation: sub-dive 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes sub-dive {
+      0%   { transform: translateY(0px); }
+      30%  { transform: translateY(28px); }
+      65%  { transform: translateY(14px); }
+      100% { transform: translateY(0px); }
+    }
+    #sub-wrap {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+      animation: sub-roam 12s ease-in-out infinite;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -288,25 +351,36 @@
 <div id="xp-popup">+50 Meters</div>
 
 <div id="app">
-  <div id="hud">
-    <div id="depth-block">
-      <div id="depth-num">0</div>
-      <div id="depth-unit">meters deep</div>
+  <div id="egg-overlay">
+    <div id="zone-unlock-text">New creature discovered!</div>
+    <div id="egg-container">🥚</div>
+  </div>
+  <div id="animal-reveal-overlay">
+    <div id="revealed-animal-container">
+      <div id="revealed-animal-emoji"></div>
+      <div id="revealed-animal-name"></div>
     </div>
-    <div id="right-hud">
+  </div>
+  <div id="hud">
+    <h1 id="app-title">Submerge</h1>
+    <div id="zone-header">
       <div id="zone-pill">Sunlight Zone</div>
       <div id="streak-block">
-        <div id="streak-num">0</div>
-        <div id="streak-label">streak</div>
+        <span id="streak-num">0</span>
+        <span id="streak-label">streak</span>
       </div>
-      <button onclick="pingDiscord()" style="background:var(--cyan-dim); border:0.5px solid var(--cyan); color:var(--cyan); padding:4px 10px; border-radius:10px; font-size:10px; cursor:pointer; margin-top:5px; font-family:var(--mono);">🔔 PING ME</button>
+    </div>
+    <div id="button-row">
+      <button onclick="pingDiscord()" class="hud-btn ping-btn">🔔 PING ME</button>
+      <button onclick="resetProgress()" class="hud-btn reset-btn">⚠️ RESET ALL</button>
     </div>
   </div>
 
   <div id="ocean-viewport">
     <div id="sonar-wrap"><div class="sonar-ring"></div><div class="sonar-ring"></div><div class="sonar-ring"></div><div id="sonar-dot"></div></div>
     <div id="roaming-animals"></div>
-    <div id="sub-wrap">
+    <div id="sub-diver">
+      <div id="sub-wrap">
       <svg id="sub-svg" width="90" height="48" viewBox="0 0 90 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="44" cy="32" rx="34" ry="13" fill="#2a7abf"/>
         <ellipse cx="44" cy="32" rx="34" ry="13" fill="none" stroke="#00eeff" stroke-width="0.8" opacity="0.5"/>
@@ -323,7 +397,8 @@
         <g id="propeller"><ellipse cx="77" cy="24" rx="3" ry="7" fill="#1d5d9e" opacity="0.85"/><ellipse cx="77" cy="24" rx="7" ry="3" fill="#1d5d9e" opacity="0.85"/><circle cx="77" cy="24" r="2.5" fill="#2a7abf"/></g>
         <ellipse cx="6" cy="32" rx="5" ry="3" fill="#00eeff" opacity="0.5"/><ellipse cx="2" cy="32" rx="3" ry="2" fill="#00eeff" opacity="0.25"/>
       </svg>
-    </div>
+      </div>
+    </div><!-- /#sub-diver -->
     <div id="seafloor"></div>
   </div>
 
@@ -359,12 +434,37 @@
   const { getMotivationMessage: getEngineMessage } = window.MotivationEngine;
 
   const ZONES = [
-    { threshold: 0, name: "Sunlight Zone", bg: "linear-gradient(180deg, #00528f 0%, #003d7a 60%, #002b5e 100%)", creature: "🐢" },
-    { threshold: 150, name: "Twilight Zone", bg: "linear-gradient(180deg, #002b5e 0%, #001a40 60%, #000d2b 100%)", creature: "🐙" },
-    { threshold: 500, name: "Midnight Zone", bg: "linear-gradient(180deg, #000d2b 0%, #000818 60%, #000210 100%)", creature: "🐋" },
-    { threshold: 1200, name: "The Abyss", bg: "linear-gradient(180deg, #000210 0%, #000008 60%, #000000 100%)", creature: "🦑" },
-    { threshold: 3000, name: "Hadal Zone", bg: "linear-gradient(180deg, #000000 0%, #020008 100%)", creature: "🪼" }
+    { threshold: 0,    name: "Sunlight Zone", bg: "linear-gradient(180deg, #00528f 0%, #003d7a 60%, #002b5e 100%)", creature: "🐢" },
+    { threshold: 150,  name: "Twilight Zone", bg: "linear-gradient(180deg, #002b5e 0%, #001a40 60%, #000d2b 100%)", creature: "🐙" },
+    { threshold: 500,  name: "Midnight Zone", bg: "linear-gradient(180deg, #000d2b 0%, #000818 60%, #000210 100%)", creature: "🐋" },
+    { threshold: 1200, name: "The Abyss",    bg: "linear-gradient(180deg, #000210 0%, #000008 60%, #000000 100%)", creature: "🦑" },
+    { threshold: 3000, name: "Hadal Zone",   bg: "linear-gradient(180deg, #000000 0%, #020008 100%)",             creature: "🪼" }
   ];
+
+  /* Zone gradient stop colors for smooth interpolation */
+  const ZONE_COLORS = [
+    ['#00528f','#003d7a','#002b5e'],
+    ['#002b5e','#001a40','#000d2b'],
+    ['#000d2b','#000818','#000210'],
+    ['#000210','#000008','#000000'],
+    ['#000000','#020008','#000000'],
+  ];
+
+  function hexToRgb(h) {
+    const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+    return [r,g,b];
+  }
+  function lerpHex(a, b, t) {
+    const ra=hexToRgb(a), rb=hexToRgb(b);
+    return `rgb(${Math.round(ra[0]+(rb[0]-ra[0])*t)},${Math.round(ra[1]+(rb[1]-ra[1])*t)},${Math.round(ra[2]+(rb[2]-ra[2])*t)})`;
+  }
+  function computeDepthBackground() {
+    const zi = getZoneIdx(), nz = ZONES[zi+1];
+    if (!nz) return ZONES[zi].bg;
+    const t = Math.min(1, (state.xp - ZONES[zi].threshold) / (nz.threshold - ZONES[zi].threshold));
+    const c = ZONE_COLORS, cur = c[zi], nxt = c[zi+1];
+    return `linear-gradient(180deg, ${lerpHex(cur[0],nxt[0],t)} 0%, ${lerpHex(cur[1],nxt[1],t)} 60%, ${lerpHex(cur[2],nxt[2],t)} 100%)`;
+  }
 
   const ANIMALS_BY_ZONE = {
     0: { emoji: "🐟", name: "Fish" },
@@ -381,7 +481,9 @@
     unlockedAnimals: [0],  // Start with zone 0 animals unlocked
     animalInstances: [],   // Track active roaming animals
     inputMode: 'task',     // 'task' or 'subtask'
-    lastCreatedTaskId: null
+    lastCreatedTaskId: null,
+    eggAnimationActive: false,
+    lastAnimatedZone: -1
   };
 
   function getZoneIdx() { let i = 0; for(let j=0; j<ZONES.length; j++) { if(state.xp >= ZONES[j].threshold) i = j; } return i; }
@@ -420,10 +522,44 @@
     }
   }
 
+  /* ── ZONE PROGRESSION EGG ANIMATION ── */
+  function startEggAnimation(zoneIdx) {
+    if (state.eggAnimationActive || state.lastAnimatedZone === zoneIdx) return;
+    state.eggAnimationActive = true;
+    state.lastAnimatedZone = zoneIdx;
+    
+    const overlay = document.getElementById('egg-overlay');
+    const eggContainer = document.getElementById('egg-container');
+    const unlockText = document.getElementById('zone-unlock-text');
+    const animalRevealOverlay = document.getElementById('animal-reveal-overlay');
+    const revealedAnimalEmoji = document.getElementById('revealed-animal-emoji');
+    const revealedAnimalName = document.getElementById('revealed-animal-name');
+    
+    overlay.classList.add('show');
+    eggContainer.className = '';
+    unlockText.className = '';
+    
+    setTimeout(() => { eggContainer.classList.add('stage-appear'); }, 50);
+    setTimeout(() => { eggContainer.classList.remove('stage-appear'); eggContainer.classList.add('stage-shake'); }, 600);
+    setTimeout(() => { eggContainer.classList.remove('stage-shake'); eggContainer.classList.add('stage-crack'); unlockText.classList.add('show'); }, 1800);
+    setTimeout(() => { overlay.classList.remove('show'); }, 2300);
+    
+    // Reveal the newly unlocked animal
+    const animal = ANIMALS_BY_ZONE[zoneIdx];
+    setTimeout(() => {
+      revealedAnimalEmoji.textContent = animal.emoji;
+      revealedAnimalName.textContent = animal.name;
+      animalRevealOverlay.classList.add('show');
+    }, 2300);
+    
+    // Hide animal reveal and spawn roaming animals
+    setTimeout(() => { animalRevealOverlay.classList.remove('show'); spawnRoamingAnimals(); state.eggAnimationActive = false; }, 3800);
+  }
+
   function unlockAnimalForZone(zoneIdx) {
     if (!state.unlockedAnimals.includes(zoneIdx)) {
       state.unlockedAnimals.push(zoneIdx);
-      spawnRoamingAnimals();
+      startEggAnimation(zoneIdx);
     }
   }
 
@@ -434,16 +570,10 @@
     }
   }
 
-  /* ── PERSISTENCE ENGINE (Mobile Save State) ── */
-  function saveState() {
-    localStorage.setItem('deepSeaState', JSON.stringify(state));
-  }
+  /* ── PERSISTENCE ENGINE (Cloud + Local Cache) ── */
+  let cloudUsername = localStorage.getItem('deepSeaUsername');
 
-  function loadState() {
-    const saved = localStorage.getItem('deepSeaState');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      state = Object.assign({}, state, parsed);
+  function migrateState() {
       if (!state.tasks) state.tasks = [];
       if (!state.unlockedAnimals) state.unlockedAnimals = [0];
       if (!state.inputMode) state.inputMode = 'task';
@@ -455,6 +585,64 @@
         if (!t.subtasks) t.subtasks = [];
         return t;
       });
+  }
+
+  function saveState() {
+    localStorage.setItem('deepSeaState', JSON.stringify(state));
+    if (cloudUsername) {
+      fetch(`/api/state/${cloudUsername}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: state })
+      }).catch(e => console.log('Cloud sync failed'));
+    }
+  }
+
+  async function loadState() {
+    if (!cloudUsername) {
+      let promptName = prompt("Welcome to Submerge! Please enter a unique Username to save your progress in the cloud (or leave blank to play offline):", "");
+      if (promptName && promptName.trim() !== "") {
+        cloudUsername = promptName.trim();
+        localStorage.setItem('deepSeaUsername', cloudUsername);
+        
+        // MIGRATION: Push existing local progress to cloud immediately
+        const saved = localStorage.getItem('deepSeaState');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          state = Object.assign({}, state, parsed);
+          migrateState();
+          
+          await fetch(`/api/state/${cloudUsername}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: state })
+          }).catch(e => console.log('Migration push failed', e));
+          return;
+        }
+      }
+    }
+    
+    if (cloudUsername) {
+      try {
+        const res = await fetch(`/api/state/${cloudUsername}`);
+        const data = await res.json();
+        if (data.state) {
+          state = Object.assign({}, state, data.state);
+          migrateState();
+          localStorage.setItem('deepSeaState', JSON.stringify(state));
+          return;
+        }
+      } catch (e) {
+        console.log('Failed to fetch from cloud, falling back to local cache', e);
+      }
+    }
+    
+    // Fallback: Use local cache
+    const saved = localStorage.getItem('deepSeaState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = Object.assign({}, state, parsed);
+      migrateState();
     }
   }
 
@@ -473,6 +661,18 @@
       .catch(err => showPopup("Ping Failed!"));
   }
 
+  async function resetProgress() {
+    if (confirm("Are you sure you want to completely RESET all your progress? This will delete all goals, streak, and depth, and cannot be undone.")) {
+      localStorage.removeItem('deepSeaState');
+      if (cloudUsername) {
+        try {
+          await fetch(`/api/state/${cloudUsername}`, { method: 'DELETE' });
+        } catch (e) { console.log('Cloud delete failed'); }
+      }
+      location.reload();
+    }
+  }
+
   /* ── ADAPTIVE BEHAVIOR ENGINE (using adaptiveSystem.js) ── */
   function getMotivationMessage() {
     // Create a state object compatible with the engine
@@ -486,6 +686,17 @@
     };
     
     return getEngineMessage(engineState);
+  }
+
+  /* ── SUB DIVE ── */
+  let _lastXpRendered = 0;
+  function triggerSubDive() {
+    const diver = document.getElementById('sub-diver');
+    if (!diver) return;
+    diver.classList.remove('diving');
+    void diver.offsetWidth; // force reflow to restart animation
+    diver.classList.add('diving');
+    setTimeout(() => diver.classList.remove('diving'), 1400);
   }
 
   /* ── EFFECTS ── */
@@ -510,6 +721,7 @@
     }
   }
 
+
   let popTimer = null;
   function showPopup(text) {
     const el = document.getElementById('xp-popup'); el.textContent = text;
@@ -531,11 +743,16 @@
   function updateUI(msg) {
     const zi = getZoneIdx(), zone = getZone(), nz = getNextZone();
 
-    document.getElementById('ocean-bg').style.background = zone.bg;
+    document.getElementById('ocean-bg').style.background = computeDepthBackground();
     document.getElementById('caustics').style.opacity = Math.max(0, 1 - zi * 0.28).toFixed(2);
-    document.getElementById('depth-num').textContent = state.xp;
+    const depthNumEl = document.getElementById('depth-num');
+    if (depthNumEl) depthNumEl.textContent = state.xp;
     document.getElementById('zone-pill').textContent = zone.name;
     document.getElementById('streak-num').textContent = state.streak;
+
+    // Trigger sub dive animation on XP gain
+    if (state.xp > _lastXpRendered) { triggerSubDive(); }
+    _lastXpRendered = state.xp;
 
     // Check for zone progression and unlock new animals
     checkZoneProgression();
@@ -784,7 +1001,7 @@
     state.streak += 1;
     state.missed = 0;
     
-    const completedTask = { ...task, completed: true };
+    const completedTask = { ...task, completed: true, isExpanded: false };
     state.tasks = state.tasks.filter((_, i) => i !== taskIdx);
     state.tasks.push(completedTask);
     
@@ -831,6 +1048,7 @@
     if (result.isMainTaskComplete) {
       // Move completed task to bottom
       const completedTask = state.tasks.splice(taskIdx, 1)[0];
+      completedTask.isExpanded = false;
       state.tasks.push(completedTask);
     }
     
@@ -928,8 +1146,27 @@
   taskInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); addTask(); } });
   
   /* ── INIT ── */
-  loadState();
-  spawnRays(); spawnBubbles(); spawnRoamingAnimals(); updateUI('Set your first goal below and start the dive...');
+  async function initApp() {
+    await loadState();
+    
+    checkZoneProgression();
+    renderTasks();
+    
+    spawnRays(); spawnBubbles(); spawnRoamingAnimals();
+    
+    // Initialize UI state
+    if (state.inputMode === 'subtask') {
+      document.getElementById('mode-step').classList.add('active');
+      document.getElementById('mode-task').classList.remove('active');
+    }
+    
+    if (cloudUsername) {
+      updateUI(`Welcome back, ${cloudUsername}! Set your first goal below and start the dive...`);
+    } else {
+      updateUI('Set your first goal below and start the dive...');
+    }
+  }
+  initApp();
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.error('SW reg failed', err));
