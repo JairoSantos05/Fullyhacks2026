@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Deep Focus — Dive Into Your Goals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cyan: #00eeff;
+      --cyan-dim: rgba(0,238,255,0.15);
+      --cyan-glow: rgba(0,238,255,0.35);
+      --white: #ffffff;
+      --white-muted: rgba(255,255,255,0.55);
+      --red-dim: rgba(255,80,80,0.18);
+      --red-border: rgba(255,80,80,0.35);
+      --red-text: rgba(255,130,130,0.9);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: #000d1a;
+      font-family: var(--sans);
+      color: var(--white);
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    #ocean-bg { position: fixed; inset: 0; transition: background 2s ease; z-index: 0; }
+
+    #caustics {
+      position: fixed; top: 0; left: 0; right: 0; height: 200px;
+      overflow: hidden; z-index: 1; pointer-events: none; transition: opacity 2s ease;
+    }
+    .ray {
+      position: absolute; top: -40px; width: 2px; height: 160px;
+      background: linear-gradient(180deg, rgba(0,238,255,0.18) 0%, transparent 100%);
+      transform-origin: top center; animation: sway linear infinite; border-radius: 1px;
+    }
+    @keyframes sway {
+      0%   { transform: rotate(var(--r0)) scaleY(1); opacity: var(--op); }
+      50%  { transform: rotate(var(--r1)) scaleY(1.15); opacity: calc(var(--op) * 0.6); }
+      100% { transform: rotate(var(--r0)) scaleY(1); opacity: var(--op); }
+    }
+
+    .bubble {
+      position: fixed; border-radius: 50%; border: 1px solid rgba(0,238,255,0.4);
+      background: rgba(0,238,255,0.06); animation: bubble-rise linear infinite; pointer-events: none; z-index: 1;
+    }
+    @keyframes bubble-rise {
+      0%   { transform: translateY(0) translateX(0); opacity: 0.7; }
+      100% { transform: translateY(-110vh) translateX(var(--dx)); opacity: 0; }
+    }
+
+    #app {
+      position: relative; z-index: 2; height: 100vh; display: flex;
+      flex-direction: column; max-width: 480px; margin: 0 auto; padding: 0 16px;
+    }
+
+    #hud { display: flex; justify-content: space-between; align-items: flex-start; padding: 44px 0 12px; flex-shrink: 0; }
+    #depth-block { display: flex; flex-direction: column; gap: 2px; }
+    #depth-num {
+      font-family: var(--mono); font-size: 52px; line-height: 1; color: var(--cyan);
+      text-shadow: 0 0 24px var(--cyan-glow), 0 0 60px rgba(0,238,255,0.15); letter-spacing: -2px;
+    }
+    #depth-unit { font-size: 12px; color: var(--white-muted); font-family: var(--mono); letter-spacing: 2px; text-transform: uppercase; }
+
+    #right-hud { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    #zone-pill {
+      background: rgba(0,0,0,0.4); border: 0.5px solid rgba(0,238,255,0.25); border-radius: 20px;
+      padding: 5px 12px; font-size: 12px; color: rgba(0,238,255,0.8); font-family: var(--mono); letter-spacing: 0.5px;
+    }
+    #streak-block { text-align: right; }
+    #streak-num { font-family: var(--mono); font-size: 24px; color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.4); line-height: 1; }
+    #streak-label { font-size: 10px; color: var(--white-muted); letter-spacing: 2px; text-transform: uppercase; }
+
+    #ocean-viewport { flex-shrink: 0; height: 200px; position: relative; display: flex; align-items: flex-end; justify-content: center; }
+
+    #sub-wrap {
+      position: absolute; bottom: 16px; display: flex; flex-direction: column;
+      align-items: center; gap: 6px; animation: sub-idle 4s ease-in-out infinite; pointer-events: none;
+    }
+    @keyframes sub-idle { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-8px) rotate(1deg); } }
+    #sub-svg { filter: drop-shadow(0 0 10px var(--cyan-glow)) drop-shadow(0 4px 16px rgba(0,0,0,0.5)); }
+    #propeller { animation: spin 0.4s linear infinite; transform-origin: 66px 24px; }
+    @keyframes spin { to { transform: rotate(360deg); transform-origin: 66px 24px; } }
+
+    #sonar-wrap {
+      position: absolute; top: 16px; right: 16px; width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center; pointer-events: none;
+    }
+    .sonar-ring { position: absolute; border-radius: 50%; border: 1px solid var(--cyan); animation: sonar 2.5s ease-out infinite; }
+    .sonar-ring:nth-child(2) { animation-delay: 0.8s; }
+    .sonar-ring:nth-child(3) { animation-delay: 1.6s; }
+    @keyframes sonar { from { width: 4px; height: 4px; opacity: 0.8; } to { width: 44px; height: 44px; opacity: 0; } }
+    #sonar-dot { width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 6px var(--cyan); position: relative; z-index: 1; }
+
+    #creature {
+      position: absolute; right: 32px; bottom: 32px; font-size: 48px;
+      animation: creature-float 3.5s ease-in-out infinite; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+      transition: all 1.5s ease; line-height: 1; pointer-events: none;
+    }
+    @keyframes creature-float { 0%,100% { transform: translateY(0) rotate(-4deg) scaleX(-1); } 50% { transform: translateY(-14px) rotate(4deg) scaleX(-1); } }
+
+    #seafloor {
+      position: absolute; bottom: 0; left: -16px; right: -16px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,238,255,0.2) 30%, rgba(0,238,255,0.2) 70%, transparent); pointer-events: none;
+    }
+
+    #xp-section { flex-shrink: 0; padding: 4px 0 10px; }
+    #xp-track { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    #xp-fill {
+      height: 100%; background: linear-gradient(90deg, #0066ff, var(--cyan));
+      border-radius: 2px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 0 8px var(--cyan-glow);
+    }
+    #xp-labels { display: flex; justify-content: space-between; margin-top: 5px; }
+    #xp-labels span { font-size: 11px; color: var(--white-muted); font-family: var(--mono); }
+
+    #msg-bar {
+      flex-shrink: 0; text-align: center; font-size: 13px; color: rgba(0,238,255,0.7);
+      font-style: italic; min-height: 28px; padding: 0 8px 8px; line-height: 1.5; pointer-events: none;
+    }
+
+    #task-panel { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding-bottom: 32px; }
+
+    #category-select {
+      background: rgba(0,0,0,0.5); border: 0.5px solid rgba(0,238,255,0.3); border-radius: var(--radius-sm);
+      color: var(--cyan); font-family: var(--mono); font-size: 12px; padding: 8px 12px; outline: none;
+      width: 100%; margin-bottom: 2px; -webkit-appearance: none; appearance: none; text-align: center;
+    }
+    
+    #input-row { display: flex; gap: 8px; flex-shrink: 0; }
+    #task-input {
+      flex: 1; background: rgba(0,0,0,0.5); border: 0.5px solid rgba(255,255,255,0.15); border-radius: var(--radius-sm);
+      color: var(--white); font-family: var(--sans); font-size: 16px; padding: 13px 14px; outline: none;
+      transition: border-color 0.2s; -webkit-appearance: none; appearance: none; touch-action: manipulation;
+    }
+    #task-input::placeholder { color: rgba(255,255,255,0.25); }
+    #task-input:focus { border-color: rgba(0,238,255,0.45); box-shadow: 0 0 0 3px rgba(0,238,255,0.08); }
+
+    #add-btn {
+      width: 52px; height: 52px; min-width: 52px; background: var(--cyan-dim); border: 0.5px solid rgba(0,238,255,0.4);
+      border-radius: var(--radius-sm); color: var(--cyan); font-size: 28px; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+    }
+    #add-btn:active { background: rgba(0,238,255,0.35); transform: scale(0.92); }
+
+    #task-list {
+      flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;
+      gap: 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    #task-list::-webkit-scrollbar { display: none; }
+
+    #empty-state { text-align: center; color: rgba(255,255,255,0.2); font-size: 13px; padding: 28px 0; font-style: italic; line-height: 1.7; }
+
+    .task-item {
+      display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.38); border: 0.5px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-sm); padding: 13px 12px; cursor: pointer; animation: task-in 0.25s ease;
+      touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; min-height: 54px;
+    }
+    @keyframes task-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .task-item:active:not(.done) { background: rgba(0,0,0,0.6); border-color: rgba(0,238,255,0.4); }
+    .task-item.done { opacity: 0.38; pointer-events: none; }
+
+    .task-check {
+      width: 22px; height: 22px; border-radius: 5px; border: 1.5px solid rgba(0,238,255,0.45); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s; font-size: 12px; color: #001a33; font-weight: 700;
+    }
+    .task-item.done .task-check { background: var(--cyan); border-color: var(--cyan); }
+    .task-text { flex: 1; font-size: 14px; color: rgba(255,255,255,0.88); line-height: 1.35; }
+    .task-item.done .task-text { text-decoration: line-through; color: rgba(255,255,255,0.3); }
+
+    .miss-btn {
+      background: var(--red-dim); border: 0.5px solid var(--red-border); color: var(--red-text); border-radius: 6px;
+      padding: 7px 11px; font-size: 12px; cursor: pointer; flex-shrink: 0; font-family: var(--sans); touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent; min-height: 34px; display: flex; align-items: center; user-select: none; -webkit-user-select: none;
+    }
+    .miss-btn:active { background: rgba(255,80,80,0.35); }
+
+    #xp-popup {
+      position: fixed; font-family: var(--mono); font-size: 20px; color: var(--cyan);
+      text-shadow: 0 0 12px var(--cyan-glow); pointer-events: none; opacity: 0; z-index: 100;
+      left: 50%; top: 45%; transform: translateX(-50%) translateY(0);
+    }
+    #zone-flash { position: fixed; inset: 0; background: var(--cyan); opacity: 0; pointer-events: none; z-index: 50; transition: opacity 0.2s; }
+
+    @media (max-height: 700px) {
+      #depth-num { font-size: 38px; } #ocean-viewport { height: 140px; } #creature { font-size: 34px; } #hud { padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="ocean-bg"></div>
+<div id="caustics"></div>
+<div id="zone-flash"></div>
+<div id="xp-popup">+50 XP</div>
+
+<div id="app">
+  <div id="hud">
+    <div id="depth-block">
+      <div id="depth-num">0</div>
+      <div id="depth-unit">meters deep</div>
+    </div>
+    <div id="right-hud">
+      <div id="zone-pill">Sunlight Zone</div>
+      <div id="streak-block">
+        <div id="streak-num">0</div>
+        <div id="streak-label">streak</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ocean-viewport">
+    <div id="sonar-wrap"><div class="sonar-ring"></div><div class="sonar-ring"></div><div class="sonar-ring"></div><div id="sonar-dot"></div></div>
+    <div id="creature">🐢</div>
+    <div id="sub-wrap">
+      <svg id="sub-svg" width="90" height="48" viewBox="0 0 90 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="44" cy="32" rx="34" ry="13" fill="#2a7abf"/>
+        <ellipse cx="44" cy="32" rx="34" ry="13" fill="none" stroke="#00eeff" stroke-width="0.8" opacity="0.5"/>
+        <rect x="24" y="16" width="22" height="14" rx="5" fill="#236aad"/>
+        <rect x="27" y="18" width="12" height="7" rx="2.5" fill="#00eeff" opacity="0.2"/>
+        <rect x="42" y="6" width="3" height="12" rx="1.5" fill="#236aad"/>
+        <rect x="40" y="6" width="7" height="3" rx="1.5" fill="#236aad"/>
+        <circle cx="34" cy="32" r="4" fill="#001a33" stroke="#00eeff" stroke-width="0.8"/>
+        <circle cx="34" cy="32" r="2" fill="#00eeff" opacity="0.35"/>
+        <circle cx="48" cy="32" r="3" fill="#001a33" stroke="#00eeff" stroke-width="0.8"/>
+        <circle cx="48" cy="32" r="1.5" fill="#00eeff" opacity="0.3"/>
+        <ellipse cx="10" cy="32" rx="6" ry="9" fill="#236aad"/>
+        <polygon points="78,28 90,20 90,44 78,40" fill="#1d5d9e"/>
+        <g id="propeller"><ellipse cx="77" cy="24" rx="3" ry="7" fill="#1d5d9e" opacity="0.85"/><ellipse cx="77" cy="24" rx="7" ry="3" fill="#1d5d9e" opacity="0.85"/><circle cx="77" cy="24" r="2.5" fill="#2a7abf"/></g>
+        <ellipse cx="6" cy="32" rx="5" ry="3" fill="#00eeff" opacity="0.5"/><ellipse cx="2" cy="32" rx="3" ry="2" fill="#00eeff" opacity="0.25"/>
+      </svg>
+    </div>
+    <div id="seafloor"></div>
+  </div>
+
+  <div id="xp-section">
+    <div id="xp-track"><div id="xp-fill" style="width:0%"></div></div>
+    <div id="xp-labels"><span id="xp-cur">0 XP</span><span id="xp-next">Next zone: 150 XP</span></div>
+  </div>
+
+  <div id="msg-bar">Set your first goal below and start the dive...</div>
+
+  <div id="task-panel">
+    <select id="category-select">
+      <option value="productivity">🧠 Productivity</option>
+      <option value="studying">📚 Studying</option>
+      <option value="fitness">💪 Fitness</option>
+      <option value="habits">🔄 Habits</option>
+      <option value="learning_skills">🛠 Learning</option>
+    </select>
+    <div id="input-row">
+      <input
+        id="task-input" type="text"
+        placeholder="e.g. Formalize Pigeonhole Principle in Lean 4..."
+        maxlength="80" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done"
+      />
+      <button id="add-btn">+</button>
+    </div>
+    <div id="task-list">
+      <div id="empty-state">No goals yet.<br>Every task is a meter deeper.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ZONES = [
+    { threshold: 0, name: "Sunlight Zone", bg: "linear-gradient(180deg, #00528f 0%, #003d7a 60%, #002b5e 100%)", creature: "🐢" },
+    { threshold: 150, name: "Twilight Zone", bg: "linear-gradient(180deg, #002b5e 0%, #001a40 60%, #000d2b 100%)", creature: "🐙" },
+    { threshold: 500, name: "Midnight Zone", bg: "linear-gradient(180deg, #000d2b 0%, #000818 60%, #000210 100%)", creature: "🐋" },
+    { threshold: 1200, name: "The Abyss", bg: "linear-gradient(180deg, #000210 0%, #000008 60%, #000000 100%)", creature: "🦑" },
+    { threshold: 3000, name: "Hadal Zone", bg: "linear-gradient(180deg, #000000 0%, #020008 100%)", creature: "🪼" }
+  ];
+
+  /* ── ENGINE STATE ── */
+  let state = { 
+    xp: 0, streak: 0, missed: 0, tasks: [], 
+    lastZoneIdx: 0, previousLevel: 'Sunlight Zone', previousXp: 0, goalType: 'productivity' 
+  };
+
+  function getZoneIdx() { let i = 0; for(let j=0; j<ZONES.length; j++) { if(state.xp >= ZONES[j].threshold) i = j; } return i; }
+  function getZone() { return ZONES[getZoneIdx()]; }
+  function getNextZone() { const i = getZoneIdx(); return ZONES[i+1] || null; }
+
+  /* ── ADAPTIVE BEHAVIOR ENGINE ── */
+  function getMotivationMessage() {
+    // 1. Critical Failure Prevention
+    if (state.missed >= 3) return "Pressure is high. Start small—just one step today.";
+    if (state.missed >= 1) return "It's okay to restart. Progress is built on comebacks.";
+
+    // 2. High Momentum 
+    if (state.streak >= 7) return "Elite system building! Submarine hull at maximum efficiency.";
+    if (state.streak >= 3) return "Great consistency! Momentum is building.";
+
+    // 3. Level Up Detection
+    const currentZone = getZone();
+    if (state.previousLevel !== currentZone.name) {
+      let msg = `Level Up: Reached the ${currentZone.name}!`;
+      // Easter Egg for Absolute Focus State
+      if (currentZone.name === "Midnight Zone") msg = "Total darkness. Domain Expansion: Infinite Void.";
+      state.previousLevel = currentZone.name;
+      return msg;
+    }
+
+    // 4. Point Spike Detection
+    const pointsGained = state.xp - state.previousXp;
+    if (pointsGained >= 30) return "Massive progress detected. You're diving fast.";
+
+    return "Dive deeper. Focus on the next meter.";
+  }
+
+  /* ── EFFECTS ── */
+  function spawnBubbles() {
+    document.querySelectorAll('.bubble').forEach(b => b.remove());
+    const count = Math.max(2, 10 - getZoneIdx() * 2);
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div'); el.className = 'bubble';
+      const size = 3 + Math.random() * 9, dur = 5 + Math.random() * 7, dx = ((Math.random() - 0.5) * 50) + 'px';
+      el.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;bottom:${Math.random()*30}%;--dx:${dx};animation-duration:${dur}s;animation-delay:${Math.random()*dur}s;`;
+      document.body.appendChild(el);
+    }
+  }
+
+  function spawnRays() {
+    const c = document.getElementById('caustics'); c.innerHTML = '';
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div'); el.className = 'ray';
+      const r0 = (Math.random()*30-15)+'deg', r1 = (Math.random()*30-15)+'deg', op = (0.3+Math.random()*0.5).toFixed(2);
+      el.style.cssText = `left:${Math.random()*100}%;height:${100+Math.random()*100}px;--r0:${r0};--r1:${r1};--op:${op};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*3}s;`;
+      c.appendChild(el);
+    }
+  }
+
+  let popTimer = null;
+  function showPopup(text) {
+    const el = document.getElementById('xp-popup'); el.textContent = text;
+    el.style.transition = 'none'; el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(popTimer);
+    requestAnimationFrame(() => { requestAnimationFrame(() => {
+      el.style.transition = 'opacity 0.3s, transform 0.8s ease-out'; el.style.opacity = '1';
+      el.style.transform = 'translateX(-50%) translateY(-40px)';
+      popTimer = setTimeout(() => { el.style.opacity = '0'; }, 900);
+    }); });
+  }
+
+  function zoneFlash() {
+    const el = document.getElementById('zone-flash'); el.style.transition = 'none'; el.style.opacity = '0.12';
+    setTimeout(() => { el.style.transition = 'opacity 0.6s ease'; el.style.opacity = '0'; }, 60);
+  }
+
+  /* ── UI SYNC ── */
+  function updateUI(msg) {
+    const zi = getZoneIdx(), zone = getZone(), nz = getNextZone();
+
+    document.getElementById('ocean-bg').style.background = zone.bg;
+    document.getElementById('caustics').style.opacity = Math.max(0, 1 - zi * 0.28).toFixed(2);
+    document.getElementById('depth-num').textContent = state.xp;
+    document.getElementById('zone-pill').textContent = zone.name;
+    document.getElementById('streak-num').textContent = state.streak;
+    document.getElementById('creature').textContent = zone.creature;
+
+    if (zi !== state.lastZoneIdx) { zoneFlash(); spawnBubbles(); state.lastZoneIdx = zi; }
+
+    const pct = nz ? Math.min(100, Math.round(((state.xp - zone.threshold) / (nz.threshold - zone.threshold)) * 100)) : 100;
+    document.getElementById('xp-fill').style.width = pct + '%';
+    document.getElementById('xp-cur').textContent = state.xp + ' XP';
+    document.getElementById('xp-next').textContent = nz ? 'Next zone: ' + nz.threshold + ' XP' : 'MAX DEPTH REACHED';
+    
+    if (msg) document.getElementById('msg-bar').textContent = msg;
+    renderTasks();
+  }
+
+  /* ── RENDER TASKS ── */
+  function renderTasks() {
+    const list = document.getElementById('task-list');
+    if (state.tasks.length === 0) {
+      list.innerHTML = '<div id="empty-state">No goals yet.<br>Every task is a meter deeper.</div>'; return;
+    }
+    list.innerHTML = '';
+    for (const t of state.tasks) {
+      const el = document.createElement('div'); el.className = 'task-item' + (t.done ? ' done' : '');
+      const check = document.createElement('div'); check.className = 'task-check'; if (t.done) check.textContent = '✓';
+      const txt = document.createElement('span'); txt.className = 'task-text'; txt.textContent = t.text;
+      el.appendChild(check); el.appendChild(txt);
+
+      if (!t.done) {
+        const miss = document.createElement('button'); miss.className = 'miss-btn'; miss.textContent = 'Missed';
+        miss.addEventListener('touchend', function(e) { e.preventDefault(); e.stopPropagation(); missTask(t.id); }, { passive: false });
+        miss.addEventListener('click', function(e) { e.stopPropagation(); missTask(t.id); });
+        el.appendChild(miss);
+
+        el.addEventListener('touchend', function(e) { if(e.target.closest('.miss-btn')) return; e.preventDefault(); completeTask(t.id); }, { passive: false });
+        el.addEventListener('click', function(e) { if(e.target.closest('.miss-btn')) return; completeTask(t.id); });
+      }
+      list.appendChild(el);
+    }
+  }
+
+  /* ── ENGINE ACTIONS ── */
+  document.getElementById('category-select').addEventListener('change', (e) => {
+    state.goalType = e.target.value;
+  });
+
+  function addTask() {
+    const input = document.getElementById('task-input'); const text = input.value.trim();
+    if (!text) { input.focus(); return; }
+    state.tasks.unshift({ id: Date.now().toString(), text, done: false, missCount: 0, type: state.goalType });
+    input.value = ''; updateUI('New goal locked in. Now execute.');
+  }
+
+  function completeTask(id) {
+    const t = state.tasks.find(x => x.id === id);
+    if (!t || t.done) return;
+    t.done = true;
+    
+    state.previousXp = state.xp;
+    state.xp += 50;
+    state.streak += 1;
+    state.missed = 0;
+    
+    showPopup('+50 XP');
+    updateUI(getMotivationMessage());
+  }
+
+  function missTask(id) {
+    const t = state.tasks.find(x => x.id === id);
+    if (!t || t.done) return;
+    t.missCount = (t.missCount || 0) + 1;
+    
+    state.previousXp = state.xp;
+    state.streak = 0;
+    state.missed += 1;
+
+    // Friction Engine Modification
+    if (t.missCount >= 2 && !t.text.includes("Just start:")) {
+      t.text = 'Just start: ' + t.text.substring(0, 30) + '...';
+    }
+    updateUI(getMotivationMessage());
+  }
+
+  /* ── BINDINGS ── */
+  let addBtnLocked = false; const addBtn = document.getElementById('add-btn');
+  addBtn.addEventListener('touchend', function(e) {
+    e.preventDefault(); if (addBtnLocked) return; addBtnLocked = true; addTask(); setTimeout(() => { addBtnLocked = false; }, 400);
+  }, { passive: false });
+  addBtn.addEventListener('click', function() {
+    if (addBtnLocked) return; addBtnLocked = true; addTask(); setTimeout(() => { addBtnLocked = false; }, 400);
+  });
+
+  const taskInput = document.getElementById('task-input');
+  taskInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); addTask(); } });
+  
+  /* ── INIT ── */
+  spawnRays(); spawnBubbles(); updateUI('Set your first goal below and start the dive...');
+</script>
+</body>
+</html>
