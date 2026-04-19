@@ -1,0 +1,7 @@
+Split the stages into the four sea zones based on points earned from goals finished.
+Top to bottom:
+    Twilight zone (0 - 100)
+    midnight zone (100 - 500)
+    abyssal zone (500 - 1200)
+    trench zone (1200 - 2000)
+
